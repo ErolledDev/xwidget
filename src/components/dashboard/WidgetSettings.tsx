@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { WidgetSettings as WidgetSettingsType } from '../../types';
-import { Save, RefreshCw, Settings as SettingsIcon, CheckCircle, AlertCircle } from 'lucide-react';
+import { Save, RefreshCw, Settings as SettingsIcon, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react';
 
 const WidgetSettings: React.FC = () => {
   const { user } = useAuth();
