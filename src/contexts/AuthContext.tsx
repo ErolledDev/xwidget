@@ -26,14 +26,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Check active sessions and sets the user
-    const session = supabase.auth.getSession();
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      setUser(session?.user ? { id: session.user.id, email: session.user.email || '' } : null);
+      setLoading(false);
+    };
     
-    setUser(session ? { id: session.user?.id || '', email: session.user?.email || '' } : null);
-    setLoading(false);
+    getSession();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session ? { id: session.user.id, email: session.user.email || '' } : null);
+      setUser(session?.user ? { id: session.user.id, email: session.user.email || '' } : null);
       setLoading(false);
     });
 

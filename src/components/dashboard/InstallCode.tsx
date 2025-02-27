@@ -6,7 +6,7 @@ const InstallCode: React.FC = () => {
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
   
-  const installCode = `<script src="https://widegetai.netlify.app/chat.js"></script>
+  const installCode = `<script src="https://widget-chat-app.netlify.app/chat.js"></script>
 
 <script>
   new BusinessChatPlugin({
@@ -57,10 +57,48 @@ const InstallCode: React.FC = () => {
       
       <div className="mt-6">
         <h3 className="text-lg font-medium mb-2">Widget Preview</h3>
-        <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
-          <p className="text-center text-gray-500 italic">
-            Widget preview will be available after deployment
-          </p>
+        <div className="border border-gray-300 rounded-md p-6 bg-gray-50 relative">
+          <div className="flex items-center justify-between bg-blue-500 text-white p-3 rounded-t-md absolute top-0 left-0 right-0">
+            <div>
+              <div className="font-bold">Your Business</div>
+              <div className="text-xs opacity-80">Chat with Support</div>
+            </div>
+            <div className="cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+          </div>
+          
+          <div className="mt-16 mb-14 min-h-[100px] max-h-[200px] overflow-y-auto">
+            <div className="bg-gray-200 p-2 rounded-md mb-2 max-w-[80%]">
+              <p className="text-sm">How can I help you today?</p>
+            </div>
+            <div className="bg-blue-100 p-2 rounded-md mb-2 max-w-[80%] ml-auto">
+              <p className="text-sm">Do you offer free shipping?</p>
+            </div>
+            <div className="bg-gray-200 p-2 rounded-md max-w-[80%]">
+              <p className="text-sm">Yes, we offer free shipping on all orders over $50!</p>
+            </div>
+          </div>
+          
+          <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-200 bg-white rounded-b-md">
+            <div className="flex">
+              <input 
+                type="text" 
+                placeholder="Type your message..." 
+                className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                disabled
+              />
+              <button className="bg-blue-500 text-white p-2 rounded-r-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

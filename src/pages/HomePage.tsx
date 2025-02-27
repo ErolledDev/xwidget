@@ -48,7 +48,7 @@ const HomePage: React.FC = () => {
           <h2 className="text-lg font-semibold mb-2">Easy Installation</h2>
           <div className="bg-gray-100 p-3 rounded">
             <code className="text-sm">
-              {`<script src="https://widegetai.netlify.app/chat.js"></script>
+              {`<script src="https://widget-chat-app.netlify.app/chat.js"></script>
 
 <script>
   new BusinessChatPlugin({
