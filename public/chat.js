@@ -162,15 +162,12 @@
       chatHeader.style.zIndex = '1';
       chatHeader.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
       
-      // Create a subtle pattern for the header background
-      const brandColorRGB = this.hexToRgb(this.settings?.brand_color || '#3B82F6');
-      const patternColor = `rgba(${brandColorRGB.r}, ${brandColorRGB.g}, ${brandColorRGB.b}, 0.1)`;
+      // Add a subtle gradient for the header background instead of pattern
+      const brandColor = this.settings?.brand_color || '#3B82F6';
+      const lighterColor = this.lightenDarkenColor(brandColor, 20);
+      const darkerColor = this.lightenDarkenColor(brandColor, -20);
       
-      chatHeader.style.backgroundImage = `
-        radial-gradient(circle at 10% 20%, ${patternColor} 0%, transparent 20%),
-        radial-gradient(circle at 90% 80%, ${patternColor} 0%, transparent 20%),
-        radial-gradient(circle at 50% 50%, ${patternColor} 0%, transparent 30%)
-      `;
+      chatHeader.style.backgroundImage = `linear-gradient(135deg, ${darkerColor} 0%, ${brandColor} 50%, ${lighterColor} 100%)`;
       
       chatHeader.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -206,8 +203,8 @@
       chatMessages.style.padding = '20px';
       chatMessages.style.overflowY = 'auto';
       chatMessages.style.backgroundColor = '#f9fafb';
-      chatMessages.style.backgroundImage = 'radial-gradient(#e5e7eb 1px, transparent 1px)';
-      chatMessages.style.backgroundSize = '20px 20px';
+      // Remove pattern background
+      chatMessages.style.backgroundImage = 'none';
       chatWindow.appendChild(chatMessages);
       
       // Add welcome message
@@ -261,9 +258,6 @@
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
           </button>
-        </div>
-        <div style="margin-top: 8px; text-align: center; font-size: 11px; color: #9ca3af;">
-          Powered by <span style="color: ${this.settings?.brand_color || '#3B82F6'}; font-weight: 500;">${this.settings?.business_name || 'Business Chat'}</span>
         </div>
       `;
       chatWindow.appendChild(chatInputArea);
@@ -524,6 +518,69 @@
           color: white;
           transform: translateY(-2px);
           box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* Enhanced animations and effects */
+        #business-chat-window {
+          backdrop-filter: blur(10px);
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .business-chat-message-content {
+          transition: all 0.2s ease;
+        }
+        
+        .business-chat-message-content:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        #business-chat-send {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        #business-chat-send:after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(255,255,255,0.2);
+          border-radius: 50%;
+          transform: scale(0);
+          transition: transform 0.3s ease;
+        }
+        
+        #business-chat-send:active:after {
+          transform: scale(1);
+          opacity: 0;
+          transition: 0s;
+        }
+        
+        #business-chat-button {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        #business-chat-button:after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(255,255,255,0.2);
+          border-radius: 50%;
+          transform: scale(0);
+          transition: transform 0.3s ease;
+        }
+        
+        #business-chat-button:active:after {
+          transform: scale(1);
+          opacity: 0;
+          transition: 0s;
         }
       `;
       document.head.appendChild(style);
