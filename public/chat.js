@@ -202,7 +202,7 @@
               </div>
             </div>
           </div>
-          <div id="business-chat-close" style="cursor: pointer; width: 36px; height: 36px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+          <div id="business-chat-close" style="cursor: pointer; width: 36px; height: 36px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-center; transition: all 0.2s ease;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -884,36 +884,45 @@
     async getAIResponse(userMessage) {
       try {
         // This is a simplified example - in a real implementation, you would call your AI API here
-        // For now, we'll simulate an API call with a delay
+        // For now, we'll simulate an AI call with a delay
         
-        // Prepare the context from the business information
+        // Get the business context from settings
         const businessContext = this.aiSettings.business_context || '';
-        const businessName = this.settings?.business_name || 'our business';
-        
-        // Create a proxy endpoint to avoid exposing API keys in client-side code
-        // In a real implementation, you would use a server-side proxy
-        // For this demo, we'll simulate a response
+        const businessName = this.settings?.business_name || '';
         
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 1500));
         
-        // Generate a simulated response based on the user message and business context
+        // Generate a response based on the user message and business context
         let response = '';
         
         if (userMessage.toLowerCase().includes('price') || userMessage.toLowerCase().includes('cost')) {
-          response = `Our pricing information can be found on our website. If you have specific questions about pricing for ${businessName}, please let me know and I'll be happy to help.`;
+          response = `Our pricing starts at $29/month for the basic plan. Let me know if you'd like more details about what's included.`;
         } else if (userMessage.toLowerCase().includes('hours') || userMessage.toLowerCase().includes('open')) {
-          response = `We're typically open Monday through Friday from 9 AM to 5 PM. Weekend hours may vary. Is there a specific day you're planning to visit?`;
+          response = `We're open Monday-Friday, 9am to 5pm. Is there a specific day you're planning to visit?`;
         } else if (userMessage.toLowerCase().includes('location') || userMessage.toLowerCase().includes('address')) {
-          response = `You can find our location details on the contact page of our website. Would you like me to provide directions from a specific area?`;
+          response = `We're located at 123 Main Street. You can find directions on our contact page.`;
         } else if (userMessage.toLowerCase().includes('shipping') || userMessage.toLowerCase().includes('delivery')) {
-          response = `We offer standard shipping which typically takes 3-5 business days, and express shipping which takes 1-2 business days. International shipping is also available for most countries.`;
+          response = `We offer free shipping on orders over $50. Standard delivery takes 3-5 business days.`;
         } else if (userMessage.toLowerCase().includes('return') || userMessage.toLowerCase().includes('refund')) {
-          response = `We have a 30-day return policy for most items. To initiate a return, please visit our website or contact our customer service team with your order number.`;
+          response = `You can return any item within 30 days for a full refund. Just keep the original packaging.`;
         } else {
-          // Generic response that incorporates the business context
-          const contextSnippet = businessContext ? businessContext.split('.')[0] : '';
-          response = `Thank you for your message. ${contextSnippet}. How else can I assist you today?`;
+          // Use the business context to generate a relevant response
+          if (businessContext) {
+            // Extract key information from the business context
+            const contextWords = businessContext.split(' ');
+            const relevantWords = contextWords.filter(word => 
+              word.length > 4 && !['about', 'these', 'those', 'their', 'there'].includes(word.toLowerCase())
+            ).slice(0, 3);
+            
+            if (relevantWords.length > 0) {
+              response = `Thanks for reaching out. I'd be happy to help with any questions about ${relevantWords.join(', ')}. What specifically would you like to know?`;
+            } else {
+              response = `Thanks for your message. How can I help you today?`;
+            }
+          } else {
+            response = `Thanks for your message. How can I help you today?`;
+          }
         }
         
         return response;
