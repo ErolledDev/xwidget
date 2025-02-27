@@ -220,7 +220,7 @@ const WidgetSettings: React.FC = () => {
           <div className="absolute bottom-6 right-6">
             {/* Chat Button */}
             <div 
-              className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg cursor-pointer"
+              className="w-[60px] h-[60px] rounded-full flex items-center justify-center shadow-lg cursor-pointer"
               style={{ 
                 backgroundColor: settings.brand_color || '#3B82F6',
                 boxShadow: `0 8px 24px rgba(0, 0, 0, 0.2), 0 0 0 0 ${settings.brand_color}40`
@@ -231,17 +231,17 @@ const WidgetSettings: React.FC = () => {
               </svg>
               
               {/* Notification Badge */}
-              <div className="absolute -top-1 -right-1 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow-sm">
+              <div className="absolute -top-[5px] -right-[5px] bg-red-500 text-white w-[22px] h-[22px] rounded-full flex items-center justify-center text-xs font-bold shadow-sm">
                 1
               </div>
             </div>
           </div>
           
           {/* Chat Window */}
-          <div className="absolute bottom-24 right-6 w-80 rounded-xl shadow-2xl overflow-hidden border border-gray-200 bg-white">
+          <div className="absolute bottom-24 right-6 w-[360px] rounded-[16px] shadow-2xl overflow-hidden border border-gray-200 bg-white">
             {/* Chat Header */}
             <div 
-              className="p-4 text-white"
+              className="p-[18px] text-white"
               style={{ 
                 background: `linear-gradient(135deg, ${settings.brand_color || '#3B82F6'}, ${lightenDarkenColor(settings.brand_color || '#3B82F6', 30)})`,
                 backgroundImage: `
@@ -252,16 +252,19 @@ const WidgetSettings: React.FC = () => {
             >
               <div className="flex justify-between items-center">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center mr-3">
-                    <User className="h-5 w-5" />
+                  <div className="w-[44px] h-[44px] rounded-full bg-white bg-opacity-20 flex items-center justify-center mr-[12px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
                   </div>
                   <div>
-                    <div className="font-bold text-base">{settings.business_name || 'Your Business'}</div>
-                    <div className="text-xs opacity-90">Chat with {settings.representative_name || 'Support'}</div>
+                    <div className="font-bold text-[18px]">{settings.business_name || 'Business Chat'}</div>
+                    <div className="text-[13px] opacity-90">Chat with {settings.representative_name || 'Support'}</div>
                   </div>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-white bg-opacity-20 flex items-center justify-center cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="w-[34px] h-[34px] rounded-full bg-white bg-opacity-20 flex items-center justify-center cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
@@ -270,19 +273,24 @@ const WidgetSettings: React.FC = () => {
             </div>
             
             {/* Chat Messages */}
-            <div className="h-64 p-4 overflow-y-auto bg-gray-50">
+            <div className="h-[300px] p-4 overflow-y-auto bg-gray-50" style={{ 
+              backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%23f0f0f0\' fill-opacity=\'0.4\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
+              backgroundSize: '300px 300px',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
               {/* Bot Message */}
-              <div className="mb-4 max-w-[85%]">
-                <div className="bg-gray-200 p-3 rounded-[18px] rounded-bl-[4px] text-gray-800 text-sm shadow-sm">
+              <div className="mb-[14px] max-w-[85%] self-start">
+                <div className="bg-gray-200 p-[12px_16px] rounded-[18px] rounded-bl-[4px] text-gray-800 text-[14px] leading-[1.5] shadow-sm">
                   {settings.business_description || 'How can we help you today?'}
                 </div>
                 <div className="text-[10px] text-gray-500 mt-1 ml-1">10:30 AM</div>
               </div>
               
               {/* User Message */}
-              <div className="mb-4 max-w-[85%] ml-auto">
+              <div className="mb-[14px] max-w-[85%] self-end">
                 <div 
-                  className="p-3 rounded-[18px] rounded-br-[4px] text-white text-sm shadow-sm"
+                  className="p-[12px_16px] rounded-[18px] rounded-br-[4px] text-white text-[14px] leading-[1.5] shadow-sm"
                   style={{ backgroundColor: settings.brand_color || '#3B82F6' }}
                 >
                   Hello, I have a question about your services.
@@ -291,8 +299,8 @@ const WidgetSettings: React.FC = () => {
               </div>
               
               {/* Bot Message */}
-              <div className="max-w-[85%]">
-                <div className="bg-gray-200 p-3 rounded-[18px] rounded-bl-[4px] text-gray-800 text-sm shadow-sm">
+              <div className="max-w-[85%] self-start">
+                <div className="bg-gray-200 p-[12px_16px] rounded-[18px] rounded-bl-[4px] text-gray-800 text-[14px] leading-[1.5] shadow-sm">
                   I'd be happy to help! What would you like to know about our services?
                 </div>
                 <div className="text-[10px] text-gray-500 mt-1 ml-1">10:32 AM</div>
@@ -300,26 +308,26 @@ const WidgetSettings: React.FC = () => {
             </div>
             
             {/* Chat Input */}
-            <div className="p-3 border-t border-gray-200 bg-white">
+            <div className="p-[14px_16px] border-t border-gray-200 bg-[#f9f9f9]">
               <div className="flex">
                 <input 
                   type="text" 
                   placeholder="Type your message..." 
-                  className="flex-1 p-3 border border-gray-300 rounded-l-full focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="flex-1 p-[14px] border border-gray-300 rounded-[24px] focus:outline-none text-[14px]"
                   disabled
                 />
                 <button 
-                  className="text-white p-3 rounded-r-full w-12 flex items-center justify-center"
+                  className="ml-2 text-white p-0 rounded-full w-[44px] h-[44px] flex items-center justify-center"
                   style={{ backgroundColor: settings.brand_color || '#3B82F6' }}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                   </svg>
                 </button>
               </div>
-              <div className="text-center text-xs text-gray-400 mt-2">
-                Powered by <span style={{ color: settings.brand_color || '#3B82F6' }}>Widget Chat</span>
+              <div className="text-center text-[11px] text-gray-500 mt-2">
+                Powered by <span style={{ color: settings.brand_color || '#3B82F6', fontWeight: 500 }}>Widget Chat</span>
               </div>
             </div>
           </div>
