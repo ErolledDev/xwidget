@@ -3,6 +3,7 @@ import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext';
 import WidgetSettings from '../components/dashboard/WidgetSettings';
 import AutoReply from '../components/dashboard/AutoReply';
+import AdvancedReply from '../components/dashboard/AdvancedReply';
 import InstallCode from '../components/dashboard/InstallCode';
 import { 
   MessageSquare, 
@@ -15,21 +16,6 @@ import {
   MessageCircle,
   User
 } from 'lucide-react';
-
-// Placeholder for AdvancedReply component since it's missing
-const AdvancedReply: React.FC = () => {
-  return (
-    <div className="flex items-center justify-center py-12">
-      <div className="text-center">
-        <MessageSquare className="h-12 w-12 text-indigo-400 mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Advanced Replies</h2>
-        <p className="text-gray-600">
-          This feature is coming soon. Stay tuned for updates!
-        </p>
-      </div>
-    </div>
-  );
-};
 
 const Dashboard: React.FC = () => {
   const { user, signOut } = useAuth();
