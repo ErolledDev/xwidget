@@ -20,3 +20,13 @@ export interface AutoReply {
   match_type: 'exact' | 'fuzzy' | 'regex' | 'synonym';
   synonyms?: string[];
 }
+
+export interface AdvancedReply {
+  id: string;
+  user_id: string;
+  keyword: string;
+  button_text: string;
+  response?: string;
+  url?: string;
+  match_type: 'exact' | 'fuzzy' | 'regex' | 'contains';
+}

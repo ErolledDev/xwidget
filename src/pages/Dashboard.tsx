@@ -3,8 +3,9 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import WidgetSettings from '../components/dashboard/WidgetSettings';
 import AutoReply from '../components/dashboard/AutoReply';
+import AdvancedReply from '../components/dashboard/AdvancedReply';
 import InstallCode from '../components/dashboard/InstallCode';
-import { LogOut, Settings, MessageSquare, Code } from 'lucide-react';
+import { LogOut, Settings, MessageSquare, Code, Link as LinkIcon } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -12,6 +13,7 @@ const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState(() => {
     const path = location.pathname.split('/').pop();
     if (path === 'auto-reply') return 'auto-reply';
+    if (path === 'advanced-reply') return 'advanced-reply';
     if (path === 'install') return 'install';
     return 'settings';
   });
@@ -44,7 +46,7 @@ const Dashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="border-b">
-            <nav className="flex">
+            <nav className="flex flex-wrap">
               <Link
                 to="/dashboard"
                 className={`px-6 py-4 text-sm font-medium flex items-center ${
@@ -70,6 +72,18 @@ const Dashboard: React.FC = () => {
                 Auto Reply
               </Link>
               <Link
+                to="/dashboard/advanced-reply"
+                className={`px-6 py-4 text-sm font-medium flex items-center ${
+                  activeTab === 'advanced-reply'
+                    ? 'border-b-2 border-blue-500 text-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                onClick={() => setActiveTab('advanced-reply')}
+              >
+                <LinkIcon className="h-4 w-4 mr-2" />
+                Advanced Reply
+              </Link>
+              <Link
                 to="/dashboard/install"
                 className={`px-6 py-4 text-sm font-medium flex items-center ${
                   activeTab === 'install'
@@ -88,6 +102,7 @@ const Dashboard: React.FC = () => {
             <Routes>
               <Route path="/" element={<WidgetSettings />} />
               <Route path="/auto-reply" element={<AutoReply />} />
+              <Route path="/advanced-reply" element={<AdvancedReply />} />
               <Route path="/install" element={<InstallCode />} />
             </Routes>
           </div>

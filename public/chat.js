@@ -7,6 +7,7 @@
       this.messages = [];
       this.settings = null;
       this.autoReplies = [];
+      this.advancedReplies = [];
       this.isTyping = false;
       
       // Initialize the chat widget
@@ -57,6 +58,17 @@
         
         const repliesData = await repliesResponse.json();
         this.autoReplies = repliesData || [];
+        
+        // Fetch advanced replies
+        const advancedRepliesResponse = await fetch(`https://usyavvmfddorgmitctym.supabase.co/rest/v1/advanced_replies?user_id=eq.${this.uid}&select=*`, {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzeWF2dm1mZGRvcmdtaXRjdHltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2Njc0MTUsImV4cCI6MjA1NjI0MzQxNX0.Oxz6W0XLIYEmxGFBhh3FRX5kjHH6JIZ7ZKH2_ORlb60',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const advancedRepliesData = await advancedRepliesResponse.json();
+        this.advancedReplies = advancedRepliesData || [];
       } catch (error) {
         console.error('Failed to load widget data:', error);
       }
@@ -193,6 +205,16 @@
       `;
       chatMessages.appendChild(welcomeMessage);
       
+      // Create advanced replies container (initially hidden)
+      const advancedRepliesContainer = document.createElement('div');
+      advancedRepliesContainer.id = 'business-chat-advanced-replies';
+      advancedRepliesContainer.style.display = 'none';
+      advancedRepliesContainer.style.padding = '10px 16px';
+      advancedRepliesContainer.style.borderTop = '1px solid #eaeaea';
+      advancedRepliesContainer.style.backgroundColor = '#f0f0f0';
+      advancedRepliesContainer.style.textAlign = 'center';
+      chatWindow.appendChild(advancedRepliesContainer);
+      
       // Create typing indicator (initially hidden)
       const typingIndicator = document.createElement('div');
       typingIndicator.id = 'business-chat-typing';
@@ -238,7 +260,8 @@
         notificationBadge.style.display = 'none';
       });
       
-      document.getElementById('business-chat-close').addEventListener('click', () => {
+      const closeButton = document.getElementById('business-chat-close');
+      closeButton.addEventListener('click', () => {
         chatWindow.style.opacity = '0';
         chatWindow.style.transform = 'translateY(20px) scale(0.95)';
         setTimeout(() => {
@@ -247,20 +270,22 @@
         }, 300);
       });
       
-      document.getElementById('business-chat-close').addEventListener('mouseover', function() {
+      closeButton.addEventListener('mouseover', function() {
         this.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
       });
       
-      document.getElementById('business-chat-close').addEventListener('mouseout', function() {
+      closeButton.addEventListener('mouseout', function() {
         this.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
       });
       
       const chatInput = document.getElementById('business-chat-input');
       const chatSend = document.getElementById('business-chat-send');
       
+      const self = this; // Store reference to 'this' for use in event handlers
+      
       chatInput.addEventListener('focus', function() {
-        this.style.boxShadow = `0 0 0 2px ${this.settings?.brand_color || '#3B82F6'}30`;
-      }.bind(this));
+        this.style.boxShadow = `0 0 0 2px ${self.settings?.brand_color || '#3B82F6'}30`;
+      });
       
       chatInput.addEventListener('blur', function() {
         this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
@@ -282,13 +307,27 @@
         this.addMessage(message, 'user');
         chatInput.value = '';
         
+        // Hide any advanced replies
+        this.hideAdvancedReplies();
+        
         // Show typing indicator
         this.showTypingIndicator();
         
-        // Process auto-reply with delay
+        // Process message with delay
         setTimeout(() => {
           this.hideTypingIndicator();
-          this.processAutoReply(message);
+          
+          // Check for advanced replies first
+          const matchedAdvancedReplies = this.findMatchingAdvancedReplies(message);
+          
+          if (matchedAdvancedReplies.length > 0) {
+            // If we have advanced replies, show them
+            this.showAdvancedReplies(matchedAdvancedReplies);
+            this.addMessage("I found some information that might help:", 'bot');
+          } else {
+            // Otherwise process as regular auto-reply
+            this.processAutoReply(message);
+          }
         }, Math.random() * 1000 + 500); // Random delay between 500ms and 1500ms
       };
       
@@ -443,6 +482,25 @@
         #business-chat-button:hover {
           transform: scale(1.05);
         }
+        
+        .business-chat-advanced-reply-button {
+          display: inline-block;
+          margin: 5px;
+          padding: 8px 16px;
+          background-color: white;
+          color: ${this.settings?.brand_color || '#3B82F6'};
+          border: 1px solid ${this.settings?.brand_color || '#3B82F6'};
+          border-radius: 20px;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-decoration: none;
+        }
+        
+        .business-chat-advanced-reply-button:hover {
+          background-color: ${this.settings?.brand_color || '#3B82F6'};
+          color: white;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -521,6 +579,90 @@
       this.isTyping = false;
       const typingIndicator = document.getElementById('business-chat-typing');
       typingIndicator.style.display = 'none';
+    }
+    
+    findMatchingAdvancedReplies(userMessage) {
+      // Check for matching advanced replies
+      const matches = [];
+      
+      for (const reply of this.advancedReplies) {
+        let isMatch = false;
+        
+        switch (reply.match_type) {
+          case 'exact':
+            isMatch = userMessage.toLowerCase() === reply.keyword.toLowerCase();
+            break;
+          case 'fuzzy':
+            isMatch = this.fuzzyMatch(userMessage.toLowerCase(), reply.keyword.toLowerCase());
+            break;
+          case 'regex':
+            try {
+              const regex = new RegExp(reply.keyword, 'i');
+              isMatch = regex.test(userMessage);
+            } catch (e) {
+              isMatch = false;
+            }
+            break;
+          case 'contains':
+            isMatch = userMessage.toLowerCase().includes(reply.keyword.toLowerCase());
+            break;
+        }
+        
+        if (isMatch) {
+          matches.push(reply);
+          // Limit to 3 matches
+          if (matches.length >= 3) break;
+        }
+      }
+      
+      return matches;
+    }
+    
+    showAdvancedReplies(replies) {
+      const container = document.getElementById('business-chat-advanced-replies');
+      container.innerHTML = '';
+      container.style.display = 'block';
+      
+      // Add a title
+      const title = document.createElement('div');
+      title.style.fontSize = '13px';
+      title.style.color = '#666';
+      title.style.marginBottom = '8px';
+      title.textContent = 'Quick options:';
+      container.appendChild(title);
+      
+      // Add buttons for each reply
+      for (const reply of replies) {
+        const button = document.createElement('a');
+        button.className = 'business-chat-advanced-reply-button';
+        button.textContent = reply.button_text;
+        
+        if (reply.url) {
+          button.href = reply.url;
+          button.target = '_blank';
+        } else {
+          button.href = 'javascript:void(0)';
+          button.addEventListener('click', () => {
+            // Hide advanced replies
+            this.hideAdvancedReplies();
+            
+            // Add the response as a bot message
+            this.addMessage(reply.response, 'bot');
+          });
+        }
+        
+        container.appendChild(button);
+      }
+      
+      // Scroll to show the buttons
+      const chatMessages = document.getElementById('business-chat-messages');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    hideAdvancedReplies() {
+      const container = document.getElementById('business-chat-advanced-replies');
+      container.style.display = 'none';
+      container.innerHTML = '';
     }
     
     processAutoReply(userMessage) {
