@@ -103,6 +103,7 @@
       chatButton.style.justifyContent = 'center';
       chatButton.style.cursor = 'pointer';
       chatButton.style.transition = 'all 0.2s ease';
+      chatButton.style.position = 'relative'; // Ensure position is relative for absolute positioning of badge
       chatButton.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
@@ -114,8 +115,8 @@
       const notificationBadge = document.createElement('div');
       notificationBadge.id = 'business-chat-notification';
       notificationBadge.style.position = 'absolute';
-      notificationBadge.style.top = '-5px';
-      notificationBadge.style.right = '-5px';
+      notificationBadge.style.top = '-8px'; // Move it higher up
+      notificationBadge.style.right = '-8px'; // Move it more to the right
       notificationBadge.style.backgroundColor = '#FF5252';
       notificationBadge.style.color = 'white';
       notificationBadge.style.borderRadius = '50%';
@@ -127,6 +128,7 @@
       notificationBadge.style.fontSize = '12px';
       notificationBadge.style.fontWeight = 'bold';
       notificationBadge.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)';
+      notificationBadge.style.border = '2px solid white'; // Add white border for better visibility
       notificationBadge.textContent = this.unreadCount.toString();
       chatButton.appendChild(notificationBadge);
       
@@ -494,6 +496,25 @@
         
         #business-chat-button:hover {
           transform: scale(1.05);
+        }
+        
+        /* Notification badge styling */
+        #business-chat-notification {
+          z-index: 10000; /* Ensure it's above everything */
+          transform: scale(1);
+          animation: business-chat-notification-pulse 2s infinite;
+        }
+        
+        @keyframes business-chat-notification-pulse {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+          100% {
+            transform: scale(1);
+          }
         }
         
         .business-chat-advanced-reply-button {
