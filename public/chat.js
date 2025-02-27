@@ -8,6 +8,7 @@
       this.settings = null;
       this.autoReplies = [];
       this.advancedReplies = [];
+      this.aiSettings = null;
       this.isTyping = false;
       this.unreadCount = 1;
       
@@ -70,6 +71,17 @@
         
         const advancedRepliesData = await advancedRepliesResponse.json();
         this.advancedReplies = advancedRepliesData || [];
+        
+        // Fetch AI settings
+        const aiSettingsResponse = await fetch(`https://usyavvmfddorgmitctym.supabase.co/rest/v1/ai_settings?user_id=eq.${this.uid}&select=*`, {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzeWF2dm1mZGRvcmdtaXRjdHltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2Njc0MTUsImV4cCI6MjA1NjI0MzQxNX0.Oxz6W0XLIYEmxGFBhh3FRX5kjHH6JIZ7ZKH2_ORlb60',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const aiSettingsData = await aiSettingsResponse.json();
+        this.aiSettings = aiSettingsData[0] || null;
       } catch (error) {
         console.error('Failed to load widget data:', error);
       }
@@ -129,6 +141,9 @@
       notificationBadge.style.fontWeight = 'bold';
       notificationBadge.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)';
       notificationBadge.style.border = '2px solid white'; // Add white border for better visibility
+      notificationBadge.style.zIndex = '10000'; // Ensure it's above everything
+      notificationBadge.style.transform = 'scale(1)';
+      notificationBadge.style.animation = 'business-chat-notification-pulse 2s infinite';
       notificationBadge.textContent = this.unreadCount.toString();
       chatButton.appendChild(notificationBadge);
       
@@ -499,12 +514,6 @@
         }
         
         /* Notification badge styling */
-        #business-chat-notification {
-          z-index: 10000; /* Ensure it's above everything */
-          transform: scale(1);
-          animation: business-chat-notification-pulse 2s infinite;
-        }
-        
         @keyframes business-chat-notification-pulse {
           0% {
             transform: scale(1);
@@ -516,7 +525,7 @@
             transform: scale(1);
           }
         }
-        
+   
         .business-chat-advanced-reply-button {
           display: inline-block;
           margin: 6px 0;
@@ -807,7 +816,7 @@
       container.innerHTML = '';
     }
     
-    processAutoReply(userMessage) {
+    async processAutoReply(userMessage) {
       // Check for matching auto-replies
       let matchedReply = null;
       
@@ -846,7 +855,71 @@
       if (matchedReply) {
         this.addMessage(matchedReply.response, 'bot');
       } else {
-        this.addMessage("Thank you for your message. We'll get back to you as soon as possible.", 'bot');
+        // No auto-reply match found, check if AI mode is enabled
+        if (this.aiSettings && this.aiSettings.enabled && this.aiSettings.api_key) {
+          try {
+            // Show longer typing indicator for AI response
+            this.showTypingIndicator();
+            
+            // Prepare the AI request
+            const response = await this.getAIResponse(userMessage);
+            
+            // Hide typing indicator
+            this.hideTypingIndicator();
+            
+            // Add AI response
+            this.addMessage(response, 'bot');
+          } catch (error) {
+            console.error('Error getting AI response:', error);
+            this.hideTypingIndicator();
+            this.addMessage("Thank you for your message. We'll get back to you as soon as possible.", 'bot');
+          }
+        } else {
+          // AI mode not enabled, use default response
+          this.addMessage("Thank you for your message. We'll get back to you as soon as possible.", 'bot');
+        }
+      }
+    }
+    
+    async getAIResponse(userMessage) {
+      try {
+        // This is a simplified example - in a real implementation, you would call your AI API here
+        // For now, we'll simulate an API call with a delay
+        
+        // Prepare the context from the business information
+        const businessContext = this.aiSettings.business_context || '';
+        const businessName = this.settings?.business_name || 'our business';
+        
+        // Create a proxy endpoint to avoid exposing API keys in client-side code
+        // In a real implementation, you would use a server-side proxy
+        // For this demo, we'll simulate a response
+        
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Generate a simulated response based on the user message and business context
+        let response = '';
+        
+        if (userMessage.toLowerCase().includes('price') || userMessage.toLowerCase().includes('cost')) {
+          response = `Our pricing information can be found on our website. If you have specific questions about pricing for ${businessName}, please let me know and I'll be happy to help.`;
+        } else if (userMessage.toLowerCase().includes('hours') || userMessage.toLowerCase().includes('open')) {
+          response = `We're typically open Monday through Friday from 9 AM to 5 PM. Weekend hours may vary. Is there a specific day you're planning to visit?`;
+        } else if (userMessage.toLowerCase().includes('location') || userMessage.toLowerCase().includes('address')) {
+          response = `You can find our location details on the contact page of our website. Would you like me to provide directions from a specific area?`;
+        } else if (userMessage.toLowerCase().includes('shipping') || userMessage.toLowerCase().includes('delivery')) {
+          response = `We offer standard shipping which typically takes 3-5 business days, and express shipping which takes 1-2 business days. International shipping is also available for most countries.`;
+        } else if (userMessage.toLowerCase().includes('return') || userMessage.toLowerCase().includes('refund')) {
+          response = `We have a 30-day return policy for most items. To initiate a return, please visit our website or contact our customer service team with your order number.`;
+        } else {
+          // Generic response that incorporates the business context
+          const contextSnippet = businessContext ? businessContext.split('.')[0] : '';
+          response = `Thank you for your message. ${contextSnippet}. How else can I assist you today?`;
+        }
+        
+        return response;
+      } catch (error) {
+        console.error('Error in AI response generation:', error);
+        throw error;
       }
     }
     

@@ -5,6 +5,7 @@ import WidgetSettings from '../components/dashboard/WidgetSettings';
 import AutoReply from '../components/dashboard/AutoReply';
 import AdvancedReply from '../components/dashboard/AdvancedReply';
 import InstallCode from '../components/dashboard/InstallCode';
+import AIMode from '../components/dashboard/AIMode';
 import { 
   MessageSquare, 
   Settings, 
@@ -14,7 +15,8 @@ import {
   X, 
   ChevronRight,
   MessageCircle,
-  User
+  User,
+  Bot
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
@@ -32,6 +34,7 @@ const Dashboard: React.FC = () => {
     { path: '/dashboard', label: 'Widget Settings', icon: <Settings className="h-5 w-5" /> },
     { path: '/dashboard/auto-reply', label: 'Auto Reply', icon: <MessageSquare className="h-5 w-5" /> },
     { path: '/dashboard/advanced-reply', label: 'Advanced Reply', icon: <MessageCircle className="h-5 w-5" /> },
+    { path: '/dashboard/ai-mode', label: 'AI Mode', icon: <Bot className="h-5 w-5" /> },
     { path: '/dashboard/install', label: 'Install Code', icon: <Code className="h-5 w-5" /> },
   ];
 
@@ -123,6 +126,7 @@ const Dashboard: React.FC = () => {
             <Route path="/" element={<WidgetSettings />} />
             <Route path="/auto-reply" element={<AutoReply />} />
             <Route path="/advanced-reply" element={<AdvancedReply />} />
+            <Route path="/ai-mode" element={<AIMode />} />
             <Route path="/install" element={<InstallCode />} />
           </Routes>
         </div>

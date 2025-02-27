@@ -30,3 +30,13 @@ export interface AdvancedReply {
   url?: string;
   match_type: 'exact' | 'fuzzy' | 'regex' | 'contains';
 }
+
+export interface AISettings {
+  id: string;
+  user_id: string;
+  enabled: boolean;
+  api_key: string;
+  model: string;
+  business_context: string;
+  created_at?: string;
+}
