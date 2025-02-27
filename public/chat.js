@@ -84,7 +84,7 @@
       chatButton.style.height = '60px';
       chatButton.style.borderRadius = '50%';
       chatButton.style.backgroundColor = this.settings?.brand_color || '#3B82F6';
-      chatButton.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      chatButton.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.2)';
       chatButton.style.display = 'flex';
       chatButton.style.alignItems = 'center';
       chatButton.style.justifyContent = 'center';
@@ -92,7 +92,7 @@
       chatButton.style.transition = 'all 0.3s ease';
       chatButton.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
         </svg>
       `;
       container.appendChild(chatButton);
@@ -106,8 +106,8 @@
       notificationBadge.style.backgroundColor = '#FF5252';
       notificationBadge.style.color = 'white';
       notificationBadge.style.borderRadius = '50%';
-      notificationBadge.style.width = '20px';
-      notificationBadge.style.height = '20px';
+      notificationBadge.style.width = '22px';
+      notificationBadge.style.height = '22px';
       notificationBadge.style.display = 'flex';
       notificationBadge.style.alignItems = 'center';
       notificationBadge.style.justifyContent = 'center';
@@ -123,11 +123,11 @@
       chatWindow.style.position = 'absolute';
       chatWindow.style.bottom = '80px';
       chatWindow.style.right = '0';
-      chatWindow.style.width = '350px';
-      chatWindow.style.height = '500px';
+      chatWindow.style.width = '360px';
+      chatWindow.style.height = '520px';
       chatWindow.style.backgroundColor = 'white';
-      chatWindow.style.borderRadius = '12px';
-      chatWindow.style.boxShadow = '0 5px 25px rgba(0, 0, 0, 0.2)';
+      chatWindow.style.borderRadius = '16px';
+      chatWindow.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.2)';
       chatWindow.style.display = 'none';
       chatWindow.style.flexDirection = 'column';
       chatWindow.style.overflow = 'hidden';
@@ -138,37 +138,37 @@
       
       // Create chat header
       const chatHeader = document.createElement('div');
-      chatHeader.style.padding = '16px';
+      chatHeader.style.padding = '18px';
       chatHeader.style.background = `linear-gradient(135deg, ${this.settings?.brand_color || '#3B82F6'}, ${this.lightenDarkenColor(this.settings?.brand_color || '#3B82F6', 30)})`;
       chatHeader.style.color = 'white';
-      chatHeader.style.borderTopLeftRadius = '12px';
-      chatHeader.style.borderTopRightRadius = '12px';
+      chatHeader.style.borderTopLeftRadius = '16px';
+      chatHeader.style.borderTopRightRadius = '16px';
       chatHeader.style.position = 'relative';
       chatHeader.style.zIndex = '1';
-      chatHeader.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)';
+      chatHeader.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
       
       // Add header pattern
       chatHeader.style.backgroundImage = `
-        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 20%),
-        radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 20%)
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 20%),
+        radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 20%)
       `;
       
       chatHeader.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div style="display: flex; align-items: center;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; margin-right: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
             </div>
             <div>
-              <div style="font-weight: bold; font-size: 16px;">${this.settings?.business_name || 'Business Chat'}</div>
-              <div style="font-size: 12px; opacity: 0.9;">Chat with ${this.settings?.representative_name || 'Support'}</div>
+              <div style="font-weight: bold; font-size: 18px;">${this.settings?.business_name || 'Business Chat'}</div>
+              <div style="font-size: 13px; opacity: 0.9;">Chat with ${this.settings?.representative_name || 'Support'}</div>
             </div>
           </div>
-          <div id="business-chat-close" style="cursor: pointer; width: 30px; height: 30px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <div id="business-chat-close" style="cursor: pointer; width: 34px; height: 34px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -216,21 +216,21 @@
       
       // Create chat input area
       const chatInputArea = document.createElement('div');
-      chatInputArea.style.padding = '12px 16px';
-      chatInputArea.style.borderTop = '1px solid #e0e0e0';
+      chatInputArea.style.padding = '14px 16px';
+      chatInputArea.style.borderTop = '1px solid #eaeaea';
       chatInputArea.style.backgroundColor = '#f9f9f9';
       chatInputArea.innerHTML = `
         <div style="display: flex; align-items: center;">
-          <input id="business-chat-input" type="text" placeholder="Type your message..." style="flex: 1; padding: 12px; border: 1px solid #e0e0e0; border-radius: 24px; outline: none; font-size: 14px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-          <button id="business-chat-send" style="margin-left: 8px; background-color: ${this.settings?.brand_color || '#3B82F6'}; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.2s ease;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <input id="business-chat-input" type="text" placeholder="Type your message..." style="flex: 1; padding: 14px; border: 1px solid #e0e0e0; border-radius: 24px; outline: none; font-size: 14px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <button id="business-chat-send" style="margin-left: 8px; background-color: ${this.settings?.brand_color || '#3B82F6'}; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.2s ease;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"></line>
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
           </button>
         </div>
         <div style="margin-top: 8px; text-align: center; font-size: 11px; color: #999;">
-          Powered by <a href="https://widget-chat-app.netlify.app" target="_blank" style="color: ${this.settings?.brand_color || '#3B82F6'}; text-decoration: none;">Widget Chat</a>
+          Powered by <a href="https://widget-chat-app.netlify.app" target="_blank" style="color: ${this.settings?.brand_color || '#3B82F6'}; text-decoration: none; font-weight: 500;">Widget Chat</a>
         </div>
       `;
       chatWindow.appendChild(chatInputArea);
@@ -320,7 +320,7 @@
             box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
           }
           70% {
-            box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            box-shadow: 0 0 0 12px rgba(59, 130, 246, 0);
           }
           100% {
             box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
@@ -328,8 +328,8 @@
         }
         
         .business-chat-message {
-          margin-bottom: 12px;
-          max-width: 80%;
+          margin-bottom: 14px;
+          max-width: 85%;
           animation: business-chat-fade-in 0.3s ease;
         }
         
@@ -347,7 +347,7 @@
           padding: 12px 16px;
           border-radius: 18px;
           font-size: 14px;
-          line-height: 1.4;
+          line-height: 1.5;
           box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
@@ -430,6 +430,23 @@
           display: flex;
           flex-direction: column;
           scroll-behavior: smooth;
+        }
+        
+        #business-chat-input {
+          font-size: 14px;
+        }
+        
+        #business-chat-input::placeholder {
+          color: #aaa;
+        }
+        
+        #business-chat-button {
+          transform: scale(1);
+          transition: transform 0.3s ease;
+        }
+        
+        #business-chat-button:hover {
+          transform: scale(1.05);
         }
       `;
       document.head.appendChild(style);

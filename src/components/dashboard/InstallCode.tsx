@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Copy } from 'lucide-react';
+import { Copy, Code, CheckCircle, ExternalLink } from 'lucide-react';
 
 const InstallCode: React.FC = () => {
   const { user } = useAuth();
@@ -21,96 +21,88 @@ const InstallCode: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Install Widget on Your Website</h2>
+    <div className="max-w-4xl mx-auto">
+      <h2 className="text-xl font-semibold mb-4 flex items-center">
+        <Code className="h-5 w-5 mr-2 text-blue-500" />
+        Install Widget on Your Website
+      </h2>
       
-      <p className="mb-4 text-gray-600">
-        Copy and paste this code snippet into your website's HTML, just before the closing <code>&lt;/body&gt;</code> tag:
-      </p>
-      
-      <div className="relative">
-        <pre className="bg-gray-800 text-white p-4 rounded-md overflow-x-auto">
-          <code>{installCode}</code>
-        </pre>
-        
-        <button
-          onClick={handleCopy}
-          className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white p-2 rounded"
-          title="Copy to clipboard"
-        >
-          <Copy className="h-4 w-4" />
-        </button>
-        
-        {copied && (
-          <div className="absolute top-2 right-12 bg-green-500 text-white px-2 py-1 rounded text-sm">
-            Copied!
-          </div>
-        )}
-      </div>
-      
-      <div className="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4">
-        <h3 className="text-lg font-medium text-blue-800 mb-2">How it works</h3>
-        <p className="text-blue-700">
-          This widget will add a chat button to the bottom right corner of your website. When visitors click on it, they can start a conversation with your business. The widget will automatically respond based on your auto-reply settings.
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
+        <p className="mb-4 text-gray-600">
+          Copy and paste this code snippet into your website's HTML, just before the closing <code className="bg-gray-100 px-1 py-0.5 rounded text-blue-600">&lt;/body&gt;</code> tag:
         </p>
+        
+        <div className="relative">
+          <pre className="bg-gray-900 text-white p-5 rounded-md overflow-x-auto text-sm">
+            <code>{installCode}</code>
+          </pre>
+          
+          <button
+            onClick={handleCopy}
+            className="absolute top-3 right-3 bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-md transition-colors"
+            title="Copy to clipboard"
+          >
+            {copied ? <CheckCircle className="h-5 w-5 text-green-400" /> : <Copy className="h-5 w-5" />}
+          </button>
+        </div>
+        
+        <div className="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-md">
+          <h3 className="text-lg font-medium text-blue-800 mb-2 flex items-center">
+            <CheckCircle className="h-5 w-5 mr-2 text-blue-500" />
+            How it works
+          </h3>
+          <p className="text-blue-700">
+            This widget will add a chat button to the bottom right corner of your website. When visitors click on it, they can start a conversation with your business. The widget will automatically respond based on your auto-reply settings.
+          </p>
+        </div>
       </div>
       
-      <div className="mt-6">
-        <h3 className="text-lg font-medium mb-2">Widget Preview</h3>
-        <div className="border border-gray-300 rounded-md p-6 bg-gray-50 relative">
-          <div className="flex items-center justify-between bg-blue-500 text-white p-3 rounded-t-md absolute top-0 left-0 right-0">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </div>
-              <div>
-                <div className="font-bold">Your Business</div>
-                <div className="text-xs opacity-80">Chat with Support</div>
-              </div>
-            </div>
-            <div className="cursor-pointer w-6 h-6 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </div>
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <h3 className="text-lg font-medium mb-4 flex items-center">
+          <ExternalLink className="h-5 w-5 mr-2 text-blue-500" />
+          Implementation Guide
+        </h3>
+        
+        <div className="space-y-4">
+          <div className="border border-gray-200 rounded-md p-4">
+            <h4 className="font-medium text-gray-800 mb-2">1. Add to your HTML</h4>
+            <p className="text-gray-600 text-sm">
+              Place the code snippet just before the closing <code className="bg-gray-100 px-1 py-0.5 rounded text-blue-600">&lt;/body&gt;</code> tag in your HTML file.
+            </p>
           </div>
           
-          <div className="mt-16 mb-14 min-h-[100px] max-h-[200px] overflow-y-auto p-2">
-            <div className="bg-gray-200 p-3 rounded-[18px] rounded-bl-[4px] mb-2 max-w-[80%] shadow-sm">
-              <p className="text-sm">How can I help you today?</p>
-              <div className="text-[10px] text-gray-500 mt-1">10:30 AM</div>
-            </div>
-            <div className="bg-blue-500 p-3 rounded-[18px] rounded-br-[4px] mb-2 max-w-[80%] ml-auto text-white shadow-sm">
-              <p className="text-sm">Do you offer free shipping?</p>
-              <div className="text-[10px] text-blue-100 mt-1 text-right">10:31 AM</div>
-            </div>
-            <div className="bg-gray-200 p-3 rounded-[18px] rounded-bl-[4px] max-w-[80%] shadow-sm">
-              <p className="text-sm">Yes, we offer free shipping on all orders over $50!</p>
-              <div className="text-[10px] text-gray-500 mt-1">10:31 AM</div>
-            </div>
+          <div className="border border-gray-200 rounded-md p-4">
+            <h4 className="font-medium text-gray-800 mb-2">2. Verify Installation</h4>
+            <p className="text-gray-600 text-sm">
+              After adding the code, refresh your website and you should see the chat button appear in the bottom right corner of your page.
+            </p>
           </div>
           
-          <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-200 bg-white rounded-b-md">
-            <div className="flex">
-              <input 
-                type="text" 
-                placeholder="Type your message..." 
-                className="flex-1 p-2 border border-gray-300 rounded-l-full focus:outline-none focus:ring-1 focus:ring-blue-500"
-                disabled
-              />
-              <button className="bg-blue-500 text-white p-2 rounded-r-full w-10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-              </button>
-            </div>
-            <div className="text-center text-xs text-gray-400 mt-2">
-              Powered by <span className="text-blue-500">Widget Chat</span>
+          <div className="border border-gray-200 rounded-md p-4">
+            <h4 className="font-medium text-gray-800 mb-2">3. Test Your Widget</h4>
+            <p className="text-gray-600 text-sm">
+              Click on the chat button to open the widget and try sending a message to test your auto-replies.
+            </p>
+          </div>
+          
+          <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+            <h4 className="font-medium text-gray-800 mb-2">Need help?</h4>
+            <p className="text-gray-600 text-sm">
+              If you're having trouble implementing the widget on your website, please contact our support team for assistance.
+            </p>
+          </div>
+        </div>
+        
+        <div className="mt-6 flex justify-center">
+          <div className="relative w-full max-w-md h-64 border border-gray-200 rounded-lg overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <div className="text-center p-6">
+                <div className="w-16 h-16 rounded-full bg-blue-500 mx-auto flex items-center justify-center mb-4">
+                  <MessageSquareIcon className="h-8 w-8 text-white" />
+                </div>
+                <p className="text-gray-700 font-medium">Your chat widget is ready to use!</p>
+                <p className="text-gray-500 text-sm mt-2">Customize it in the Widget Settings tab</p>
+              </div>
             </div>
           </div>
         </div>
@@ -118,5 +110,23 @@ const InstallCode: React.FC = () => {
     </div>
   );
 };
+
+// Message Square Icon component
+const MessageSquareIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+  </svg>
+);
 
 export default InstallCode;
