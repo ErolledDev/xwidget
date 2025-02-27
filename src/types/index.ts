@@ -1,0 +1,22 @@
+export interface User {
+  id: string;
+  email: string;
+}
+
+export interface WidgetSettings {
+  id: string;
+  user_id: string;
+  business_name: string;
+  representative_name: string;
+  brand_color: string;
+  business_description: string;
+}
+
+export interface AutoReply {
+  id: string;
+  user_id: string;
+  keyword: string;
+  response: string;
+  match_type: 'exact' | 'fuzzy' | 'regex' | 'synonym';
+  synonyms?: string[];
+}
