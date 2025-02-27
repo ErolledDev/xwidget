@@ -9,6 +9,7 @@
       this.autoReplies = [];
       this.advancedReplies = [];
       this.isTyping = false;
+      this.unreadCount = 1;
       
       // Initialize the chat widget
       this.init();
@@ -126,7 +127,7 @@
       notificationBadge.style.fontSize = '12px';
       notificationBadge.style.fontWeight = 'bold';
       notificationBadge.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
-      notificationBadge.textContent = '1';
+      notificationBadge.textContent = this.unreadCount.toString();
       chatButton.appendChild(notificationBadge);
       
       // Create chat window (initially hidden)
@@ -135,9 +136,9 @@
       chatWindow.style.position = 'absolute';
       chatWindow.style.bottom = '80px';
       chatWindow.style.right = '0';
-      chatWindow.style.width = '360px';
+      chatWindow.style.width = '380px';
       chatWindow.style.maxWidth = '100vw';
-      chatWindow.style.height = '520px';
+      chatWindow.style.height = '580px';
       chatWindow.style.maxHeight = 'calc(100vh - 100px)';
       chatWindow.style.backgroundColor = 'white';
       chatWindow.style.borderRadius = '16px';
@@ -152,7 +153,7 @@
       
       // Create chat header
       const chatHeader = document.createElement('div');
-      chatHeader.style.padding = '18px';
+      chatHeader.style.padding = '20px';
       chatHeader.style.background = this.settings?.brand_color || '#3B82F6';
       chatHeader.style.color = 'white';
       chatHeader.style.borderTopLeftRadius = '16px';
@@ -161,21 +162,34 @@
       chatHeader.style.zIndex = '1';
       chatHeader.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
       
+      // Create a subtle pattern for the header background
+      const brandColorRGB = this.hexToRgb(this.settings?.brand_color || '#3B82F6');
+      const patternColor = `rgba(${brandColorRGB.r}, ${brandColorRGB.g}, ${brandColorRGB.b}, 0.1)`;
+      
+      chatHeader.style.backgroundImage = `
+        radial-gradient(circle at 10% 20%, ${patternColor} 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, ${patternColor} 0%, transparent 20%),
+        radial-gradient(circle at 50% 50%, ${patternColor} 0%, transparent 30%)
+      `;
+      
       chatHeader.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div style="display: flex; align-items: center;">
-            <div style="width: 44px; height: 44px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; margin-right: 12px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; margin-right: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
             </div>
             <div>
-              <div style="font-weight: bold; font-size: 18px; color: white;">${this.settings?.business_name || 'Business Chat'}</div>
-              <div style="font-size: 13px; opacity: 0.9; color: white;">Chat with ${this.settings?.representative_name || 'Support'}</div>
+              <div style="font-weight: bold; font-size: 18px; color: white; margin-bottom: 2px;">${this.settings?.business_name || 'Business Chat'}</div>
+              <div style="font-size: 13px; opacity: 0.9; color: white; display: flex; align-items: center;">
+                <span style="display: inline-block; width: 8px; height: 8px; background-color: #4ADE80; border-radius: 50%; margin-right: 6px;"></span>
+                Chat with ${this.settings?.representative_name || 'Support'}
+              </div>
             </div>
           </div>
-          <div id="business-chat-close" style="cursor: pointer; width: 34px; height: 34px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+          <div id="business-chat-close" style="cursor: pointer; width: 36px; height: 36px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -189,9 +203,11 @@
       const chatMessages = document.createElement('div');
       chatMessages.id = 'business-chat-messages';
       chatMessages.style.flex = '1';
-      chatMessages.style.padding = '16px';
+      chatMessages.style.padding = '20px';
       chatMessages.style.overflowY = 'auto';
-      chatMessages.style.backgroundColor = '#f9f9f9';
+      chatMessages.style.backgroundColor = '#f9fafb';
+      chatMessages.style.backgroundImage = 'radial-gradient(#e5e7eb 1px, transparent 1px)';
+      chatMessages.style.backgroundSize = '20px 20px';
       chatWindow.appendChild(chatMessages);
       
       // Add welcome message
@@ -209,7 +225,7 @@
       const advancedRepliesContainer = document.createElement('div');
       advancedRepliesContainer.id = 'business-chat-advanced-replies';
       advancedRepliesContainer.style.display = 'none';
-      advancedRepliesContainer.style.padding = '10px 16px';
+      advancedRepliesContainer.style.padding = '12px 16px';
       advancedRepliesContainer.style.borderTop = '1px solid #eaeaea';
       advancedRepliesContainer.style.backgroundColor = '#f0f0f0';
       advancedRepliesContainer.style.textAlign = 'center';
@@ -233,18 +249,21 @@
       
       // Create chat input area
       const chatInputArea = document.createElement('div');
-      chatInputArea.style.padding = '14px 16px';
+      chatInputArea.style.padding = '16px 20px';
       chatInputArea.style.borderTop = '1px solid #eaeaea';
-      chatInputArea.style.backgroundColor = '#f9f9f9';
+      chatInputArea.style.backgroundColor = 'white';
       chatInputArea.innerHTML = `
         <div style="display: flex; align-items: center;">
-          <input id="business-chat-input" type="text" placeholder="Type your message..." style="flex: 1; padding: 14px; border: 1px solid #e0e0e0; border-radius: 24px; outline: none; font-size: 14px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-          <button id="business-chat-send" style="margin-left: 8px; background-color: ${this.settings?.brand_color || '#3B82F6'}; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.2s ease;">
+          <input id="business-chat-input" type="text" placeholder="Type your message..." style="flex: 1; padding: 14px 18px; border: 1px solid #e0e0e0; border-radius: 24px; outline: none; font-size: 14px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <button id="business-chat-send" style="margin-left: 10px; background-color: ${this.settings?.brand_color || '#3B82F6'}; color: white; border: none; border-radius: 50%; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.2s ease;">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"></line>
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
           </button>
+        </div>
+        <div style="margin-top: 8px; text-align: center; font-size: 11px; color: #9ca3af;">
+          Powered by <span style="color: ${this.settings?.brand_color || '#3B82F6'}; font-weight: 500;">${this.settings?.business_name || 'Business Chat'}</span>
         </div>
       `;
       chatWindow.appendChild(chatInputArea);
@@ -258,6 +277,7 @@
         }, 10);
         chatButton.style.display = 'none';
         notificationBadge.style.display = 'none';
+        this.unreadCount = 0;
       });
       
       const closeButton = document.getElementById('business-chat-close');
@@ -362,7 +382,7 @@
         }
         
         .business-chat-message {
-          margin-bottom: 14px;
+          margin-bottom: 16px;
           max-width: 85%;
           animation: business-chat-fade-in 0.3s ease;
         }
@@ -378,7 +398,7 @@
         }
         
         .business-chat-message-content {
-          padding: 12px 16px;
+          padding: 14px 18px;
           border-radius: 18px;
           font-size: 14px;
           line-height: 1.5;
@@ -386,8 +406,9 @@
         }
         
         .business-chat-message-bot .business-chat-message-content {
-          background-color: #f0f0f0;
+          background-color: white;
           border-bottom-left-radius: 4px;
+          border: 1px solid #e5e7eb;
         }
         
         .business-chat-message-user .business-chat-message-content {
@@ -398,7 +419,7 @@
         
         .business-chat-message-time {
           font-size: 10px;
-          color: #999;
+          color: #9ca3af;
           margin-top: 4px;
           padding-left: 4px;
         }
@@ -424,7 +445,7 @@
           height: 8px;
           width: 8px;
           border-radius: 50%;
-          background-color: #aaa;
+          background-color: #9ca3af;
           display: inline-block;
           margin-right: 4px;
           animation: business-chat-typing 1.4s infinite ease-in-out both;
@@ -471,7 +492,7 @@
         }
         
         #business-chat-input::placeholder {
-          color: #aaa;
+          color: #9ca3af;
         }
         
         #business-chat-button {
@@ -486,7 +507,7 @@
         .business-chat-advanced-reply-button {
           display: inline-block;
           margin: 5px;
-          padding: 8px 16px;
+          padding: 10px 16px;
           background-color: white;
           color: ${this.settings?.brand_color || '#3B82F6'};
           border: 1px solid ${this.settings?.brand_color || '#3B82F6'};
@@ -495,11 +516,14 @@
           cursor: pointer;
           transition: all 0.2s ease;
           text-decoration: none;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
         .business-chat-advanced-reply-button:hover {
           background-color: ${this.settings?.brand_color || '#3B82F6'};
           color: white;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
       `;
       document.head.appendChild(style);
@@ -518,17 +542,17 @@
           chatWindow.style.right = '0';
           chatWindow.style.bottom = '0';
           chatWindow.style.borderRadius = '16px 16px 0 0';
-          chatWindow.style.height = '80vh';
+          chatWindow.style.height = '85vh';
           
-          chatButton.style.width = '50px';
-          chatButton.style.height = '50px';
+          chatButton.style.width = '54px';
+          chatButton.style.height = '54px';
         } else {
           // Desktop styles
-          chatWindow.style.width = '360px';
+          chatWindow.style.width = '380px';
           chatWindow.style.right = '0';
           chatWindow.style.bottom = '80px';
           chatWindow.style.borderRadius = '16px';
-          chatWindow.style.height = '520px';
+          chatWindow.style.height = '580px';
           
           chatButton.style.width = '60px';
           chatButton.style.height = '60px';
@@ -562,6 +586,14 @@
       
       // Store message
       this.messages.push({ text, sender, time: currentTime });
+      
+      // Update unread count if chat window is closed
+      if (document.getElementById('business-chat-window').style.display === 'none' && sender === 'bot') {
+        this.unreadCount++;
+        const notificationBadge = document.getElementById('business-chat-notification');
+        notificationBadge.textContent = this.unreadCount.toString();
+        notificationBadge.style.display = 'flex';
+      }
     }
     
     showTypingIndicator() {
@@ -626,8 +658,9 @@
       // Add a title
       const title = document.createElement('div');
       title.style.fontSize = '13px';
-      title.style.color = '#666';
-      title.style.marginBottom = '8px';
+      title.style.color = '#4b5563';
+      title.style.marginBottom = '10px';
+      title.style.fontWeight = '500';
       title.textContent = 'Quick options:';
       container.appendChild(title);
       
@@ -734,6 +767,19 @@
       const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
       
       return `${formattedHours}:${formattedMinutes} ${ampm}`;
+    }
+    
+    hexToRgb(hex) {
+      // Remove # if present
+      hex = hex.replace(/^#/, '');
+      
+      // Parse hex values
+      const bigint = parseInt(hex, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      
+      return { r, g, b };
     }
     
     lightenDarkenColor(col, amt) {
