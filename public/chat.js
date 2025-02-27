@@ -124,7 +124,9 @@
       chatWindow.style.bottom = '80px';
       chatWindow.style.right = '0';
       chatWindow.style.width = '360px';
+      chatWindow.style.maxWidth = '100vw';
       chatWindow.style.height = '520px';
+      chatWindow.style.maxHeight = 'calc(100vh - 100px)';
       chatWindow.style.backgroundColor = 'white';
       chatWindow.style.borderRadius = '16px';
       chatWindow.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.2)';
@@ -229,9 +231,6 @@
             </svg>
           </button>
         </div>
-        <div style="margin-top: 8px; text-align: center; font-size: 11px; color: #999;">
-          Powered by <a href="https://widget-chat-app.netlify.app" target="_blank" style="color: ${this.settings?.brand_color || '#3B82F6'}; text-decoration: none; font-weight: 500;">Widget Chat</a>
-        </div>
       `;
       chatWindow.appendChild(chatInputArea);
       
@@ -306,6 +305,9 @@
           sendMessage();
         }
       });
+      
+      // Add responsive styles for mobile
+      this.addResponsiveStyles();
     }
     
     addStyles() {
@@ -450,6 +452,45 @@
         }
       `;
       document.head.appendChild(style);
+    }
+    
+    addResponsiveStyles() {
+      const mediaQuery = window.matchMedia('(max-width: 480px)');
+      
+      const applyMobileStyles = (matches) => {
+        const chatWindow = document.getElementById('business-chat-window');
+        const chatButton = document.getElementById('business-chat-button');
+        
+        if (matches) {
+          // Mobile styles
+          chatWindow.style.width = '100%';
+          chatWindow.style.right = '0';
+          chatWindow.style.bottom = '0';
+          chatWindow.style.borderRadius = '16px 16px 0 0';
+          chatWindow.style.height = '80vh';
+          
+          chatButton.style.width = '50px';
+          chatButton.style.height = '50px';
+        } else {
+          // Desktop styles
+          chatWindow.style.width = '360px';
+          chatWindow.style.right = '0';
+          chatWindow.style.bottom = '80px';
+          chatWindow.style.borderRadius = '16px';
+          chatWindow.style.height = '520px';
+          
+          chatButton.style.width = '60px';
+          chatButton.style.height = '60px';
+        }
+      };
+      
+      // Apply styles initially
+      applyMobileStyles(mediaQuery.matches);
+      
+      // Add listener for screen size changes
+      mediaQuery.addEventListener('change', (e) => {
+        applyMobileStyles(e.matches);
+      });
     }
     
     addMessage(text, sender) {
