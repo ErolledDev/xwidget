@@ -59,27 +59,38 @@ const InstallCode: React.FC = () => {
         <h3 className="text-lg font-medium mb-2">Widget Preview</h3>
         <div className="border border-gray-300 rounded-md p-6 bg-gray-50 relative">
           <div className="flex items-center justify-between bg-blue-500 text-white p-3 rounded-t-md absolute top-0 left-0 right-0">
-            <div>
-              <div className="font-bold">Your Business</div>
-              <div className="text-xs opacity-80">Chat with Support</div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div>
+                <div className="font-bold">Your Business</div>
+                <div className="text-xs opacity-80">Chat with Support</div>
+              </div>
             </div>
-            <div className="cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="cursor-pointer w-6 h-6 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </div>
           </div>
           
-          <div className="mt-16 mb-14 min-h-[100px] max-h-[200px] overflow-y-auto">
-            <div className="bg-gray-200 p-2 rounded-md mb-2 max-w-[80%]">
+          <div className="mt-16 mb-14 min-h-[100px] max-h-[200px] overflow-y-auto p-2">
+            <div className="bg-gray-200 p-3 rounded-[18px] rounded-bl-[4px] mb-2 max-w-[80%] shadow-sm">
               <p className="text-sm">How can I help you today?</p>
+              <div className="text-[10px] text-gray-500 mt-1">10:30 AM</div>
             </div>
-            <div className="bg-blue-100 p-2 rounded-md mb-2 max-w-[80%] ml-auto">
+            <div className="bg-blue-500 p-3 rounded-[18px] rounded-br-[4px] mb-2 max-w-[80%] ml-auto text-white shadow-sm">
               <p className="text-sm">Do you offer free shipping?</p>
+              <div className="text-[10px] text-blue-100 mt-1 text-right">10:31 AM</div>
             </div>
-            <div className="bg-gray-200 p-2 rounded-md max-w-[80%]">
+            <div className="bg-gray-200 p-3 rounded-[18px] rounded-bl-[4px] max-w-[80%] shadow-sm">
               <p className="text-sm">Yes, we offer free shipping on all orders over $50!</p>
+              <div className="text-[10px] text-gray-500 mt-1">10:31 AM</div>
             </div>
           </div>
           
@@ -88,15 +99,18 @@ const InstallCode: React.FC = () => {
               <input 
                 type="text" 
                 placeholder="Type your message..." 
-                className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 p-2 border border-gray-300 rounded-l-full focus:outline-none focus:ring-1 focus:ring-blue-500"
                 disabled
               />
-              <button className="bg-blue-500 text-white p-2 rounded-r-md">
+              <button className="bg-blue-500 text-white p-2 rounded-r-full w-10 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="22" y1="2" x2="11" y2="13"></line>
                   <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                 </svg>
               </button>
+            </div>
+            <div className="text-center text-xs text-gray-400 mt-2">
+              Powered by <span className="text-blue-500">Widget Chat</span>
             </div>
           </div>
         </div>
