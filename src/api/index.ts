@@ -89,3 +89,48 @@ export async function updateAISettings(uid: string, settings: any) {
     throw error;
   }
 }
+
+// API handler to save chat analytics
+export async function saveChatAnalytics(uid: string, visitorData: {
+  name: string;
+  email: string;
+  ip_address?: string;
+}) {
+  try {
+    const { data, error } = await supabase
+      .from('chat_analytics')
+      .insert({
+        user_id: uid,
+        visitor_name: visitorData.name,
+        visitor_email: visitorData.email,
+        ip_address: visitorData.ip_address || null
+      })
+      .select();
+      
+    if (error) throw error;
+    return data?.[0] || null;
+  } catch (error) {
+    console.error('Error saving chat analytics:', error);
+    throw error;
+  }
+}
+
+// API handler to save chat messages
+export async function saveChatMessage(analyticsId: string, message: string, sender: string) {
+  try {
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .insert({
+        analytics_id: analyticsId,
+        message,
+        sender
+      })
+      .select();
+      
+    if (error) throw error;
+    return data?.[0] || null;
+  } catch (error) {
+    console.error('Error saving chat message:', error);
+    throw error;
+  }
+}

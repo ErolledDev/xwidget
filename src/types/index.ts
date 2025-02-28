@@ -40,3 +40,22 @@ export interface AISettings {
   business_context: string;
   created_at?: string;
 }
+
+export interface ChatAnalytics {
+  id: string;
+  user_id: string;
+  visitor_name: string;
+  visitor_email: string;
+  ip_address?: string;
+  timestamp: string;
+  created_at?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  analytics_id: string;
+  message: string;
+  sender: string;
+  timestamp: string;
+  created_at?: string;
+}
