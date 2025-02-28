@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { AISettings } from '../../types';
+import { useData } from '../../contexts/DataContext';
 import { Save, RefreshCw, Bot, CheckCircle, AlertCircle, ToggleLeft, ToggleRight, Key, Info, Sparkles } from 'lucide-react';
 import { useNotification } from '../../contexts/NotificationContext';
 
 const AIMode: React.FC = () => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const [loading, setLoading] = useState(true);
+  const { aiSettings, loading, refreshAISettings } = useData();
+  
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [settings, setSettings] = useState<AISettings>({
+  const [localSettings, setLocalSettings] = useState({
     id: '',
     user_id: user?.id || '',
     enabled: false,
@@ -20,43 +21,20 @@ const AIMode: React.FC = () => {
     business_context: ''
   });
 
+  // Update local state when aiSettings changes
   useEffect(() => {
-    if (user) {
-      fetchSettings();
+    if (aiSettings) {
+      setLocalSettings(aiSettings);
     }
-  }, [user]);
-
-  const fetchSettings = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('ai_settings')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 is the error code for "no rows returned"
-        throw error;
-      }
-
-      if (data) {
-        setSettings(data);
-      }
-    } catch (error) {
-      console.error('Error fetching AI settings:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [aiSettings]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setSettings(prev => ({ ...prev, [name]: value }));
+    setLocalSettings(prev => ({ ...prev, [name]: value }));
   };
 
   const handleToggleChange = () => {
-    setSettings(prev => ({ ...prev, enabled: !prev.enabled }));
+    setLocalSettings(prev => ({ ...prev, enabled: !prev.enabled }));
   };
 
   const handleSaveSettings = async () => {
@@ -83,10 +61,10 @@ const AIMode: React.FC = () => {
         const { error } = await supabase
           .from('ai_settings')
           .update({
-            enabled: settings.enabled,
-            api_key: settings.api_key,
-            model: settings.model,
-            business_context: settings.business_context
+            enabled: localSettings.enabled,
+            api_key: localSettings.api_key,
+            model: localSettings.model,
+            business_context: localSettings.business_context
           })
           .eq('id', existingData.id);
           
@@ -97,10 +75,10 @@ const AIMode: React.FC = () => {
           .from('ai_settings')
           .insert({
             user_id: user.id,
-            enabled: settings.enabled,
-            api_key: settings.api_key,
-            model: settings.model,
-            business_context: settings.business_context
+            enabled: localSettings.enabled,
+            api_key: localSettings.api_key,
+            model: localSettings.model,
+            business_context: localSettings.business_context
           });
           
         saveError = error;
@@ -109,7 +87,7 @@ const AIMode: React.FC = () => {
       if (saveError) throw saveError;
       
       // Refresh settings after save
-      fetchSettings();
+      await refreshAISettings();
       
       // Show success notification
       showNotification({
@@ -121,7 +99,7 @@ const AIMode: React.FC = () => {
       // Show success message
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving AI settings:', error);
       showNotification({
         type: 'error',
@@ -133,7 +111,7 @@ const AIMode: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (loading.aiSettings) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -150,7 +128,7 @@ const AIMode: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900">AI Mode Settings</h2>
         </div>
         <button
-          onClick={fetchSettings}
+          onClick={refreshAISettings}
           className="text-gray-600 hover:text-gray-900 flex items-center transition-colors"
           title="Refresh settings"
         >
@@ -178,13 +156,13 @@ const AIMode: React.FC = () => {
           <button
             onClick={handleToggleChange}
             className="flex items-center focus:outline-none"
-            aria-pressed={settings.enabled}
+            aria-pressed={localSettings.enabled}
             role="switch"
           >
             <span className="mr-2 text-sm font-medium text-gray-700">
-              {settings.enabled ? 'Enabled' : 'Disabled'}
+              {localSettings.enabled ? 'Enabled' : 'Disabled'}
             </span>
-            {settings.enabled ? (
+            {localSettings.enabled ? (
               <ToggleRight className="h-6 w-6 text-indigo-600" />
             ) : (
               <ToggleLeft className="h-6 w-6 text-gray-400" />
@@ -214,11 +192,11 @@ const AIMode: React.FC = () => {
           <input
             type="password"
             name="api_key"
-            value={settings.api_key}
+            value={localSettings.api_key}
             onChange={handleInputChange}
             className="form-input"
             placeholder="Enter your API key"
-            disabled={!settings.enabled}
+            disabled={!localSettings.enabled}
           />
           <p className="mt-1 text-xs text-gray-500">
             Your API key is stored securely and never shared with third parties.
@@ -231,10 +209,10 @@ const AIMode: React.FC = () => {
           </label>
           <select
             name="model"
-            value={settings.model}
+            value={localSettings.model}
             onChange={handleInputChange}
             className="form-input"
-            disabled={!settings.enabled}
+            disabled={!localSettings.enabled}
           >
             <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
             <option value="gpt-4">GPT-4</option>
@@ -244,15 +222,15 @@ const AIMode: React.FC = () => {
             <option value="claude-3-opus">Claude 3 Opus</option>
             <option value="custom">Custom Model</option>
           </select>
-          {settings.model === 'custom' && (
+          {localSettings.model === 'custom' && (
             <input
               type="text"
               name="model"
-              value={settings.model === 'custom' ? '' : settings.model}
+              value={localSettings.model === 'custom' ? '' : localSettings.model}
               onChange={handleInputChange}
               className="form-input mt-2"
               placeholder="Enter custom model name"
-              disabled={!settings.enabled}
+              disabled={!localSettings.enabled}
             />
           )}
           <p className="mt-1 text-xs text-gray-500">
@@ -266,12 +244,12 @@ const AIMode: React.FC = () => {
           </label>
           <textarea
             name="business_context"
-            value={settings.business_context}
+            value={localSettings.business_context}
             onChange={handleInputChange}
             rows={5}
             className="form-input"
             placeholder="Provide information about your business, products, services, and how you want the AI to respond to customers..."
-            disabled={!settings.enabled}
+            disabled={!localSettings.enabled}
           ></textarea>
           <p className="mt-1 text-xs text-gray-500">
             This information will be used to help the AI generate more accurate and relevant responses for your customers.

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useData } from '../../contexts/DataContext';
 import { AdvancedReply as AdvancedReplyType } from '../../types';
 import { Plus, Trash2, MessageCircle, Search, ExternalLink, Link as LinkIcon } from 'lucide-react';
 import { useNotification } from '../../contexts/NotificationContext';
@@ -8,8 +9,9 @@ import { useNotification } from '../../contexts/NotificationContext';
 const AdvancedReply: React.FC = () => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const [loading, setLoading] = useState(true);
-  const [advancedReplies, setAdvancedReplies] = useState<AdvancedReplyType[]>([]);
+  const { advancedReplies, loading, refreshAdvancedReplies } = useData();
+  
+  const [saving, setSaving] = useState(false);
   const [newReply, setNewReply] = useState<Partial<AdvancedReplyType>>({
     keyword: '',
     button_text: '',
@@ -19,29 +21,6 @@ const AdvancedReply: React.FC = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [showUrlField, setShowUrlField] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      fetchAdvancedReplies();
-    }
-  }, [user]);
-
-  const fetchAdvancedReplies = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('advanced_replies')
-        .select('*')
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-      setAdvancedReplies(data || []);
-    } catch (error) {
-      console.error('Error fetching advanced replies:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -74,6 +53,7 @@ const AdvancedReply: React.FC = () => {
     }
 
     try {
+      setSaving(true);
       const { data, error } = await supabase
         .from('advanced_replies')
         .insert({
@@ -89,7 +69,10 @@ const AdvancedReply: React.FC = () => {
       if (error) throw error;
       
       if (data) {
-        setAdvancedReplies(prev => [...prev, data[0]]);
+        // Refresh advanced replies after adding
+        await refreshAdvancedReplies();
+        
+        // Reset form
         setNewReply({
           keyword: '',
           button_text: '',
@@ -106,13 +89,15 @@ const AdvancedReply: React.FC = () => {
           message: `Advanced reply for "${data[0].keyword}" has been added successfully.`
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding advanced reply:', error);
       showNotification({
         type: 'error',
         title: 'Error',
         message: 'Failed to add advanced reply. Please try again.'
       });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -126,7 +111,8 @@ const AdvancedReply: React.FC = () => {
 
       if (error) throw error;
       
-      setAdvancedReplies(prev => prev.filter(reply => reply.id !== id));
+      // Refresh advanced replies after deleting
+      await refreshAdvancedReplies();
       
       // Show notification
       showNotification({
@@ -134,7 +120,7 @@ const AdvancedReply: React.FC = () => {
         title: 'Advanced Reply Deleted',
         message: `Advanced reply for "${replyToDelete?.keyword}" has been deleted.`
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting advanced reply:', error);
       showNotification({
         type: 'error',
@@ -150,7 +136,7 @@ const AdvancedReply: React.FC = () => {
     (reply.response && reply.response.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  if (loading) {
+  if (loading.advancedReplies) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -283,10 +269,23 @@ const AdvancedReply: React.FC = () => {
         <button
           type="button"
           onClick={handleAddReply}
+          disabled={saving}
           className="btn-primary"
         >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Advanced Reply
+          {saving ? (
+            <span className="flex items-center">
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Adding...
+            </span>
+          ) : (
+            <span className="flex items-center">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Advanced Reply
+            </span>
+          )}
         </button>
       </div>
 

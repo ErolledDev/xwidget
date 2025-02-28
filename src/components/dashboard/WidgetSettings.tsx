@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { WidgetSettings as WidgetSettingsType } from '../../types';
-import { Save, RefreshCw, Settings as SettingsIcon, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react';
+import { useData } from '../../contexts/DataContext';
+import { Save, RefreshCw, Settings as SettingsIcon, CheckCircle, MessageCircle } from 'lucide-react';
 import { useNotification } from '../../contexts/NotificationContext';
 
 const WidgetSettings: React.FC = () => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const [loading, setLoading] = useState(true);
+  const { widgetSettings, loading, refreshWidgetSettings } = useData();
+  
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [settings, setSettings] = useState<WidgetSettingsType>({
+  const [localSettings, setLocalSettings] = useState({
     id: '',
     user_id: user?.id || '',
     business_name: '',
@@ -20,39 +21,16 @@ const WidgetSettings: React.FC = () => {
     business_description: ''
   });
 
+  // Update local state when widgetSettings changes
   useEffect(() => {
-    if (user) {
-      fetchSettings();
+    if (widgetSettings) {
+      setLocalSettings(widgetSettings);
     }
-  }, [user]);
-
-  const fetchSettings = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('widget_settings')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 is the error code for "no rows returned"
-        throw error;
-      }
-
-      if (data) {
-        setSettings(data);
-      }
-    } catch (error) {
-      console.error('Error fetching widget settings:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [widgetSettings]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setSettings(prev => ({ ...prev, [name]: value }));
+    setLocalSettings(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSaveSettings = async () => {
@@ -79,10 +57,10 @@ const WidgetSettings: React.FC = () => {
         const { error } = await supabase
           .from('widget_settings')
           .update({
-            business_name: settings.business_name,
-            representative_name: settings.representative_name,
-            brand_color: settings.brand_color,
-            business_description: settings.business_description
+            business_name: localSettings.business_name,
+            representative_name: localSettings.representative_name,
+            brand_color: localSettings.brand_color,
+            business_description: localSettings.business_description
           })
           .eq('id', existingData.id);
           
@@ -93,10 +71,10 @@ const WidgetSettings: React.FC = () => {
           .from('widget_settings')
           .insert({
             user_id: user.id,
-            business_name: settings.business_name,
-            representative_name: settings.representative_name,
-            brand_color: settings.brand_color,
-            business_description: settings.business_description
+            business_name: localSettings.business_name,
+            representative_name: localSettings.representative_name,
+            brand_color: localSettings.brand_color,
+            business_description: localSettings.business_description
           });
           
         saveError = error;
@@ -105,7 +83,7 @@ const WidgetSettings: React.FC = () => {
       if (saveError) throw saveError;
       
       // Refresh settings after save
-      fetchSettings();
+      await refreshWidgetSettings();
       
       // Show notification
       showNotification({
@@ -117,7 +95,7 @@ const WidgetSettings: React.FC = () => {
       // Show success message
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving widget settings:', error);
       showNotification({
         type: 'error',
@@ -129,7 +107,7 @@ const WidgetSettings: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (loading.widgetSettings) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -146,7 +124,7 @@ const WidgetSettings: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900">Widget Settings</h2>
         </div>
         <button
-          onClick={fetchSettings}
+          onClick={refreshWidgetSettings}
           className="text-gray-600 hover:text-gray-900 flex items-center transition-colors"
           title="Refresh settings"
         >
@@ -174,7 +152,7 @@ const WidgetSettings: React.FC = () => {
             <input
               type="text"
               name="business_name"
-              value={settings.business_name}
+              value={localSettings.business_name}
               onChange={handleInputChange}
               className="form-input"
               placeholder="Your Business Name"
@@ -191,7 +169,7 @@ const WidgetSettings: React.FC = () => {
             <input
               type="text"
               name="representative_name"
-              value={settings.representative_name}
+              value={localSettings.representative_name}
               onChange={handleInputChange}
               className="form-input"
               placeholder="Support Agent"
@@ -210,14 +188,14 @@ const WidgetSettings: React.FC = () => {
             <input
               type="color"
               name="brand_color"
-              value={settings.brand_color}
+              value={localSettings.brand_color}
               onChange={handleInputChange}
               className="h-10 w-10 border border-gray-300 rounded-md shadow-sm cursor-pointer"
             />
             <input
               type="text"
               name="brand_color"
-              value={settings.brand_color}
+              value={localSettings.brand_color}
               onChange={handleInputChange}
               className="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="#4f46e5"
@@ -226,7 +204,7 @@ const WidgetSettings: React.FC = () => {
               {['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'].map(color => (
                 <button
                   key={color}
-                  onClick={() => setSettings(prev => ({ ...prev, brand_color: color }))}
+                  onClick={() => setLocalSettings(prev => ({ ...prev, brand_color: color }))}
                   className="w-8 h-8 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   style={{ backgroundColor: color }}
                   title={color}
@@ -245,7 +223,7 @@ const WidgetSettings: React.FC = () => {
           </label>
           <textarea
             name="business_description"
-            value={settings.business_description}
+            value={localSettings.business_description}
             onChange={handleInputChange}
             rows={3}
             className="form-input"
@@ -286,20 +264,20 @@ const WidgetSettings: React.FC = () => {
         <div className="bg-gray-100 p-4 sm:p-6 rounded-xl border border-gray-200">
           <div className="max-w-sm mx-auto">
             <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
-              <div className="p-4" style={{ backgroundColor: settings.brand_color || '#4f46e5' }}>
+              <div className="p-4" style={{ backgroundColor: localSettings.brand_color || '#4f46e5' }}>
                 <div className="flex items-center">
                   <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                     <MessageCircle className="h-5 w-5 text-white" />
                   </div>
                   <div className="ml-3">
-                    <h3 className="font-semibold text-white">{settings.business_name || 'Your Business'}</h3>
-                    <p className="text-xs text-white/80">Chat with {settings.representative_name || 'Support'}</p>
+                    <h3 className="font-semibold text-white">{localSettings.business_name || 'Your Business'}</h3>
+                    <p className="text-xs text-white/80">Chat with {localSettings.representative_name || 'Support'}</p>
                   </div>
                 </div>
               </div>
               <div className="p-4 bg-gray-50">
                 <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-3">
-                  <p className="text-sm text-gray-800">{settings.business_description || 'How can we help you today?'}</p>
+                  <p className="text-sm text-gray-800">{localSettings.business_description || 'How can we help you today?'}</p>
                 </div>
                 <div className="relative">
                   <input 
@@ -310,7 +288,7 @@ const WidgetSettings: React.FC = () => {
                   />
                   <button 
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-full"
-                    style={{ backgroundColor: settings.brand_color || '#4f46e5' }}
+                    style={{ backgroundColor: localSettings.brand_color || '#4f46e5' }}
                     disabled
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
@@ -324,7 +302,7 @@ const WidgetSettings: React.FC = () => {
             <div className="mt-4 flex justify-end">
               <div 
                 className="w-12 h-12 rounded-full shadow-md flex items-center justify-center cursor-pointer"
-                style={{ backgroundColor: settings.brand_color || '#4f46e5' }}
+                style={{ backgroundColor: localSettings.brand_color || '#4f46e5' }}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
