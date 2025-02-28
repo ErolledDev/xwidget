@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
-import { Save, Bot, CheckCircle, AlertCircle, ToggleLeft, ToggleRight, Key, Info, Sparkles } from 'lucide-react';
+import { Save, Bot, AlertCircle, ToggleLeft, ToggleRight, Key, Info, Sparkles } from 'lucide-react';
 import { useNotification } from '../../contexts/NotificationContext';
 
 const AIMode: React.FC = () => {
@@ -11,7 +11,6 @@ const AIMode: React.FC = () => {
   const { aiSettings, loading, setAISettings } = useData();
   
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [localSettings, setLocalSettings] = useState({
     id: '',
     user_id: user?.id || '',
@@ -102,10 +101,6 @@ const AIMode: React.FC = () => {
         title: 'AI Settings Saved',
         message: 'Your AI settings have been updated successfully.'
       });
-      
-      // Show success message
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
     } catch (error: any) {
       console.error('Error saving AI settings:', error);
       showNotification({
@@ -135,16 +130,6 @@ const AIMode: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900">AI Mode Settings</h2>
         </div>
       </div>
-
-      {success && (
-        <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-md flex items-start">
-          <CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="text-sm text-green-700 font-medium">AI settings saved successfully!</p>
-            <p className="text-xs text-green-600 mt-1">Your widget has been updated with the new AI settings.</p>
-          </div>
-        </div>
-      )}
 
       <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">

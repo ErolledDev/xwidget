@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
-import { Save, Settings as SettingsIcon, CheckCircle, MessageCircle } from 'lucide-react';
+import { Save, Settings as SettingsIcon, MessageCircle } from 'lucide-react';
 import { useNotification } from '../../contexts/NotificationContext';
 
 const WidgetSettings: React.FC = () => {
@@ -11,7 +11,6 @@ const WidgetSettings: React.FC = () => {
   const { widgetSettings, loading, setWidgetSettings } = useData();
   
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [localSettings, setLocalSettings] = useState({
     id: '',
     user_id: user?.id || '',
@@ -98,10 +97,6 @@ const WidgetSettings: React.FC = () => {
         title: 'Settings Saved',
         message: 'Your widget settings have been updated successfully.'
       });
-      
-      // Show success message
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
     } catch (error: any) {
       console.error('Error saving widget settings:', error);
       showNotification({
@@ -131,16 +126,6 @@ const WidgetSettings: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900">Widget Settings</h2>
         </div>
       </div>
-
-      {success && (
-        <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-md flex items-start">
-          <CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="text-sm text-green-700 font-medium">Settings saved successfully!</p>
-            <p className="text-xs text-green-600 mt-1">Your widget has been updated with the new settings.</p>
-          </div>
-        </div>
-      )}
 
       <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
