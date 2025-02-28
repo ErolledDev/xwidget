@@ -11,6 +11,7 @@
       this.aiSettings = null;
       this.isTyping = false;
       this.unreadCount = 1;
+      this.sessionId = null;
       
       // Initialize the chat widget
       this.init();
@@ -25,6 +26,9 @@
         
         // Create widget UI
         this.createWidgetUI();
+        
+        // Initialize analytics
+        this.initializeAnalytics();
         
         this.initialized = true;
       } catch (error) {
@@ -84,6 +88,115 @@
         this.aiSettings = aiSettingsData[0] || null;
       } catch (error) {
         console.error('Failed to load widget data:', error);
+      }
+    }
+    
+    initializeAnalytics() {
+      // Generate a unique session ID if not already set
+      if (!this.sessionId) {
+        this.sessionId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+      }
+      
+      // Get existing sessions from localStorage or initialize empty array
+      let sessions = [];
+      try {
+        const storedSessions = localStorage.getItem(`widget_chat_sessions_${this.uid}`);
+        if (storedSessions) {
+          sessions = JSON.parse(storedSessions);
+        }
+      } catch (error) {
+        console.error('Error reading sessions from localStorage:', error);
+      }
+      
+      // Create a new session
+      const newSession = {
+        id: this.sessionId,
+        timestamp: new Date().toISOString(),
+        visitorInfo: {
+          userAgent: navigator.userAgent,
+          referrer: document.referrer
+        },
+        messages: []
+      };
+      
+      // Add the new session to the array
+      sessions.push(newSession);
+      
+      // Save back to localStorage
+      try {
+        localStorage.setItem(`widget_chat_sessions_${this.uid}`, JSON.stringify(sessions));
+      } catch (error) {
+        console.error('Error saving session to localStorage:', error);
+      }
+      
+      // Try to get IP address (this may be blocked by browsers)
+      this.getIpAddress().then(ip => {
+        if (ip) {
+          this.updateSessionInfo({ ipAddress: ip });
+        }
+      });
+    }
+    
+    async getIpAddress() {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+      } catch (error) {
+        console.error('Failed to get IP address:', error);
+        return null;
+      }
+    }
+    
+    updateSessionInfo(info) {
+      try {
+        // Get current sessions
+        const storedSessions = localStorage.getItem(`widget_chat_sessions_${this.uid}`);
+        if (!storedSessions) return;
+        
+        const sessions = JSON.parse(storedSessions);
+        
+        // Find current session
+        const sessionIndex = sessions.findIndex(s => s.id === this.sessionId);
+        if (sessionIndex === -1) return;
+        
+        // Update visitor info
+        sessions[sessionIndex].visitorInfo = {
+          ...sessions[sessionIndex].visitorInfo,
+          ...info
+        };
+        
+        // Save back to localStorage
+        localStorage.setItem(`widget_chat_sessions_${this.uid}`, JSON.stringify(sessions));
+      } catch (error) {
+        console.error('Error updating session info:', error);
+      }
+    }
+    
+    saveMessageToAnalytics(message, sender) {
+      try {
+        // Get current sessions
+        const storedSessions = localStorage.getItem(`widget_chat_sessions_${this.uid}`);
+        if (!storedSessions) return;
+        
+        const sessions = JSON.parse(storedSessions);
+        
+        // Find current session
+        const sessionIndex = sessions.findIndex(s => s.id === this.sessionId);
+        if (sessionIndex === -1) return;
+        
+        // Add message
+        sessions[sessionIndex].messages.push({
+          id: Date.now().toString(36) + Math.random().toString(36).substring(2),
+          content: message,
+          sender: sender,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Save back to localStorage
+        localStorage.setItem(`widget_chat_sessions_${this.uid}`, JSON.stringify(sessions));
+      } catch (error) {
+        console.error('Error saving message to analytics:', error);
       }
     }
     
@@ -234,6 +347,9 @@
       `;
       chatMessages.appendChild(welcomeMessage);
       
+      // Save welcome message to analytics
+      this.saveMessageToAnalytics(this.settings?.business_description || 'How can we help you today?', 'bot');
+      
       // Create advanced replies container (initially hidden)
       const advancedRepliesContainer = document.createElement('div');
       advancedRepliesContainer.id = 'business-chat-advanced-replies';
@@ -340,6 +456,9 @@
         this.addMessage(message, 'user');
         chatInput.value = '';
         
+        // Save message to analytics
+        this.saveMessageToAnalytics(message, 'user');
+        
         // Hide any advanced replies
         this.hideAdvancedReplies();
         
@@ -358,6 +477,9 @@
             this.showAdvancedReplies(matchedAdvancedReplies);
             const botResponse = "I found some information that might help:";
             this.addMessage(botResponse, 'bot');
+            
+            // Save bot response to analytics
+            this.saveMessageToAnalytics(botResponse, 'bot');
           } else {
             // Otherwise process as regular auto-reply
             this.processAutoReply(message);
@@ -797,6 +919,9 @@
             
             // Add the response as a bot message
             this.addMessage(reply.response, 'bot');
+            
+            // Save bot response to analytics
+            this.saveMessageToAnalytics(reply.response, 'bot');
           });
         }
         
@@ -852,6 +977,9 @@
       
       if (matchedReply) {
         this.addMessage(matchedReply.response, 'bot');
+        
+        // Save bot response to analytics
+        this.saveMessageToAnalytics(matchedReply.response, 'bot');
       } else {
         // No auto-reply match found, check if AI mode is enabled
         if (this.aiSettings && this.aiSettings.enabled && this.aiSettings.api_key) {
@@ -867,16 +995,25 @@
             
             // Add AI response
             this.addMessage(response, 'bot');
+            
+            // Save AI response to analytics
+            this.saveMessageToAnalytics(response, 'bot');
           } catch (error) {
             console.error('Error getting AI response:', error);
             this.hideTypingIndicator();
             const defaultResponse = "Thank you for your message. We'll get back to you as soon as possible.";
             this.addMessage(defaultResponse, 'bot');
+            
+            // Save default response to analytics
+            this.saveMessageToAnalytics(defaultResponse, 'bot');
           }
         } else {
           // AI mode not enabled, use default response
           const defaultResponse = "Thank you for your message. We'll get back to you as soon as possible.";
           this.addMessage(defaultResponse, 'bot');
+          
+          // Save default response to analytics
+          this.saveMessageToAnalytics(defaultResponse, 'bot');
         }
       }
     }
