@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
 import { AdvancedReply as AdvancedReplyType } from '../../types';
-import { Plus, Trash2, MessageCircle, Search, ExternalLink, Link as LinkIcon } from 'lucide-react';
+import { Plus, Trash, MessageCircle, Search, ExternalLink, Link as LinkIcon } from 'lucide-react';
 import { useNotification } from '../../contexts/NotificationContext';
 
 const AdvancedReply: React.FC = () => {
@@ -359,7 +359,7 @@ const AdvancedReply: React.FC = () => {
                         onClick={() => handleDeleteReply(reply.id)}
                         className="text-red-600 hover:text-red-900 transition-colors"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash className="h-4 w-4" />
                       </button>
                     </td>
                   </tr>

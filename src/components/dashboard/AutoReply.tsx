@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
 import { AutoReply as AutoReplyType } from '../../types';
-import { Upload, Download, Plus, Trash2, MessageSquare, Search } from 'lucide-react';
+import { Upload, Download, Plus, Trash, MessageSquare, Search } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import stringSimilarity from 'string-similarity';
 import { useNotification } from '../../contexts/NotificationContext';
@@ -375,7 +375,7 @@ const AutoReply: React.FC = () => {
                       onClick={() => handleRemoveSynonym(index)}
                       className="ml-1 text-gray-500 hover:text-gray-700"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash className="h-3 w-3" />
                     </button>
                   </div>
                 ))}
@@ -542,7 +542,7 @@ const AutoReply: React.FC = () => {
                         onClick={() => handleDeleteReply(reply.id)}
                         className="text-red-600 hover:text-red-900 transition-colors"
                       >
-                        Delete
+                        <Trash className="h-4 w-4" />
                       </button>
                     </td>
                   </tr>
