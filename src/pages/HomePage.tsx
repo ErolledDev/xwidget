@@ -142,32 +142,19 @@ const HomePage: React.FC = () => {
                   <input 
                     type="text" 
                     placeholder="Type your message..." 
-                    className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" disabled
                   />
-                  <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition-colors">
+                  <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition-colors"  disabled>
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
                 
-                {/* Quick reply buttons */}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button className="text-xs bg-white border border-indigo-200 text-indigo-600 px-3 py-1.5 rounded-full hover:bg-indigo-50 transition-colors">
-                    Pricing plans
-                  </button>
-                  <button className="text-xs bg-white border border-indigo-200 text-indigo-600 px-3 py-1.5 rounded-full hover:bg-indigo-50 transition-colors">
-                    Features
-                  </button>
-                  <button className="text-xs bg-white border border-indigo-200 text-indigo-600 px-3 py-1.5 rounded-full hover:bg-indigo-50 transition-colors">
-                    Contact support
-                  </button>
-                </div>
+         
+              
               </div>
               
               {/* Chat button */}
-              <div className="absolute -bottom-6 -right-6 w-16 h-16 rounded-full shadow-lg flex items-center justify-center cursor-pointer bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
-                <MessageCircle className="h-8 w-8" />
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">3</span>
-              </div>
+              
             </div>
           </div>
           
