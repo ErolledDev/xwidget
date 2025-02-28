@@ -202,7 +202,7 @@
               </div>
             </div>
           </div>
-          <div id="business-chat-close" style="cursor: pointer; width: 36px; height: 36px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-center; transition: all 0.2s ease;">
+          <div id="business-chat-close"  style="cursor: pointer; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-center; transition: all 0.2s ease;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
