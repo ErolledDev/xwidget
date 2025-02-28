@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
@@ -11,7 +11,7 @@ import { useNotification } from '../../contexts/NotificationContext';
 const AutoReply: React.FC = () => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const { autoReplies, loading, refreshAutoReplies } = useData();
+  const { autoReplies, loading, setAutoReplies } = useData();
   
   const [saving, setSaving] = useState(false);
   const [newReply, setNewReply] = useState<Partial<AutoReplyType>>({
@@ -73,8 +73,8 @@ const AutoReply: React.FC = () => {
       if (error) throw error;
       
       if (data) {
-        // Refresh auto replies after adding
-        await refreshAutoReplies();
+        // Update local state directly instead of refreshing
+        setAutoReplies(prev => [...prev, ...data]);
         
         // Reset form
         setNewReply({
@@ -113,8 +113,8 @@ const AutoReply: React.FC = () => {
 
       if (error) throw error;
       
-      // Refresh auto replies after deleting
-      await refreshAutoReplies();
+      // Update local state directly instead of refreshing
+      setAutoReplies(prev => prev.filter(reply => reply.id !== id));
       
       // Show notification
       showNotification({
@@ -132,7 +132,7 @@ const AutoReply: React.FC = () => {
     }
   };
 
-  const handleImportExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -173,8 +173,8 @@ const AutoReply: React.FC = () => {
         if (error) throw error;
         
         if (insertedData) {
-          // Refresh auto replies after importing
-          await refreshAutoReplies();
+          // Update local state directly instead of refreshing
+          setAutoReplies(prev => [...prev, ...insertedData]);
           
           showNotification({
             type: 'success',

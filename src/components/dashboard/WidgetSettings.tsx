@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
-import { Save, RefreshCw, Settings as SettingsIcon, CheckCircle, MessageCircle } from 'lucide-react';
+import { Save, Settings as SettingsIcon, CheckCircle, MessageCircle } from 'lucide-react';
 import { useNotification } from '../../contexts/NotificationContext';
 
 const WidgetSettings: React.FC = () => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const { widgetSettings, loading, refreshWidgetSettings } = useData();
+  const { widgetSettings, loading, setWidgetSettings } = useData();
   
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -51,10 +51,11 @@ const WidgetSettings: React.FC = () => {
       }
 
       let saveError;
+      let savedData;
       
       if (existingData) {
         // Update existing settings
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('widget_settings')
           .update({
             business_name: localSettings.business_name,
@@ -62,12 +63,14 @@ const WidgetSettings: React.FC = () => {
             brand_color: localSettings.brand_color,
             business_description: localSettings.business_description
           })
-          .eq('id', existingData.id);
+          .eq('id', existingData.id)
+          .select();
           
         saveError = error;
+        savedData = data;
       } else {
         // Insert new settings
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('widget_settings')
           .insert({
             user_id: user.id,
@@ -75,15 +78,19 @@ const WidgetSettings: React.FC = () => {
             representative_name: localSettings.representative_name,
             brand_color: localSettings.brand_color,
             business_description: localSettings.business_description
-          });
+          })
+          .select();
           
         saveError = error;
+        savedData = data;
       }
 
       if (saveError) throw saveError;
       
-      // Refresh settings after save
-      await refreshWidgetSettings();
+      // Update local state directly instead of refreshing
+      if (savedData && savedData[0]) {
+        setWidgetSettings(savedData[0]);
+      }
       
       // Show notification
       showNotification({
@@ -123,14 +130,6 @@ const WidgetSettings: React.FC = () => {
           <SettingsIcon className="h-6 w-6 text-indigo-600 mr-2" />
           <h2 className="text-xl font-semibold text-gray-900">Widget Settings</h2>
         </div>
-        <button
-          onClick={refreshWidgetSettings}
-          className="text-gray-600 hover:text-gray-900 flex items-center transition-colors"
-          title="Refresh settings"
-        >
-          <RefreshCw className="h-4 w-4 mr-1" />
-          Refresh
-        </button>
       </div>
 
       {success && (

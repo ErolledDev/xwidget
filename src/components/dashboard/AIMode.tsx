@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
-import { Save, RefreshCw, Bot, CheckCircle, AlertCircle, ToggleLeft, ToggleRight, Key, Info, Sparkles } from 'lucide-react';
+import { Save, Bot, CheckCircle, AlertCircle, ToggleLeft, ToggleRight, Key, Info, Sparkles } from 'lucide-react';
 import { useNotification } from '../../contexts/NotificationContext';
 
 const AIMode: React.FC = () => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const { aiSettings, loading, refreshAISettings } = useData();
+  const { aiSettings, loading, setAISettings } = useData();
   
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -55,10 +55,11 @@ const AIMode: React.FC = () => {
       }
 
       let saveError;
+      let savedData;
       
       if (existingData) {
         // Update existing settings
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('ai_settings')
           .update({
             enabled: localSettings.enabled,
@@ -66,12 +67,14 @@ const AIMode: React.FC = () => {
             model: localSettings.model,
             business_context: localSettings.business_context
           })
-          .eq('id', existingData.id);
+          .eq('id', existingData.id)
+          .select();
           
         saveError = error;
+        savedData = data;
       } else {
         // Insert new settings
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('ai_settings')
           .insert({
             user_id: user.id,
@@ -79,15 +82,19 @@ const AIMode: React.FC = () => {
             api_key: localSettings.api_key,
             model: localSettings.model,
             business_context: localSettings.business_context
-          });
+          })
+          .select();
           
         saveError = error;
+        savedData = data;
       }
 
       if (saveError) throw saveError;
       
-      // Refresh settings after save
-      await refreshAISettings();
+      // Update local state directly instead of refreshing
+      if (savedData && savedData[0]) {
+        setAISettings(savedData[0]);
+      }
       
       // Show success notification
       showNotification({
@@ -127,14 +134,6 @@ const AIMode: React.FC = () => {
           <Bot className="h-6 w-6 text-indigo-600 mr-2" />
           <h2 className="text-xl font-semibold text-gray-900">AI Mode Settings</h2>
         </div>
-        <button
-          onClick={refreshAISettings}
-          className="text-gray-600 hover:text-gray-900 flex items-center transition-colors"
-          title="Refresh settings"
-        >
-          <RefreshCw className="h-4 w-4 mr-1" />
-          Refresh
-        </button>
       </div>
 
       {success && (

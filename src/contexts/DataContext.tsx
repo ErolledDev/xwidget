@@ -20,6 +20,10 @@ interface DataContextType {
     advancedReplies: string | null;
     aiSettings: string | null;
   };
+  setWidgetSettings: (settings: WidgetSettings) => void;
+  setAutoReplies: (replies: AutoReply[]) => void;
+  setAdvancedReplies: (replies: AdvancedReply[]) => void;
+  setAISettings: (settings: AISettings) => void;
   refreshWidgetSettings: () => Promise<void>;
   refreshAutoReplies: () => Promise<void>;
   refreshAdvancedReplies: () => Promise<void>;
@@ -44,6 +48,10 @@ const DataContext = createContext<DataContextType>({
     advancedReplies: null,
     aiSettings: null,
   },
+  setWidgetSettings: () => {},
+  setAutoReplies: () => {},
+  setAdvancedReplies: () => {},
+  setAISettings: () => {},
   refreshWidgetSettings: async () => {},
   refreshAutoReplies: async () => {},
   refreshAdvancedReplies: async () => {},
@@ -236,6 +244,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         aiSettings,
         loading,
         error,
+        setWidgetSettings,
+        setAutoReplies,
+        setAdvancedReplies,
+        setAISettings,
         refreshWidgetSettings: fetchWidgetSettings,
         refreshAutoReplies: fetchAutoReplies,
         refreshAdvancedReplies: fetchAdvancedReplies,

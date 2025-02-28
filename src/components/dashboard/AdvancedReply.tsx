@@ -9,7 +9,7 @@ import { useNotification } from '../../contexts/NotificationContext';
 const AdvancedReply: React.FC = () => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const { advancedReplies, loading, refreshAdvancedReplies } = useData();
+  const { advancedReplies, loading, setAdvancedReplies } = useData();
   
   const [saving, setSaving] = useState(false);
   const [newReply, setNewReply] = useState<Partial<AdvancedReplyType>>({
@@ -69,8 +69,8 @@ const AdvancedReply: React.FC = () => {
       if (error) throw error;
       
       if (data) {
-        // Refresh advanced replies after adding
-        await refreshAdvancedReplies();
+        // Update local state directly instead of refreshing
+        setAdvancedReplies(prev => [...prev, ...data]);
         
         // Reset form
         setNewReply({
@@ -111,8 +111,8 @@ const AdvancedReply: React.FC = () => {
 
       if (error) throw error;
       
-      // Refresh advanced replies after deleting
-      await refreshAdvancedReplies();
+      // Update local state directly instead of refreshing
+      setAdvancedReplies(prev => prev.filter(reply => reply.id !== id));
       
       // Show notification
       showNotification({
