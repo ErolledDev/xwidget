@@ -123,7 +123,7 @@
       `;
       container.appendChild(chatButton);
       
-      // Create notification badge
+      // Create notification badge - FIXED Z-INDEX ISSUE
       const notificationBadge = document.createElement('div');
       notificationBadge.id = 'business-chat-notification';
       notificationBadge.style.position = 'absolute';
@@ -141,7 +141,7 @@
       notificationBadge.style.fontWeight = 'bold';
       notificationBadge.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)';
       notificationBadge.style.border = '2px solid white'; // Add white border for better visibility
-      notificationBadge.style.zIndex = '10000'; // Ensure it's above everything
+      notificationBadge.style.zIndex = '10'; // Changed from 10000 to a lower value to prevent z-index stacking issues
       notificationBadge.style.transform = 'scale(1)';
       notificationBadge.style.animation = 'business-chat-notification-pulse 2s infinite';
       notificationBadge.textContent = this.unreadCount.toString();
