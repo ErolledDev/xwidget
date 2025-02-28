@@ -11,11 +11,6 @@
       this.aiSettings = null;
       this.isTyping = false;
       this.unreadCount = 1;
-      this.userInfo = {
-        name: '',
-        email: ''
-      };
-      this.userInfoSubmitted = false;
       
       // Initialize the chat widget
       this.init();
@@ -217,54 +212,7 @@
       `;
       chatWindow.appendChild(chatHeader);
       
-      // Create user info form container
-      const userInfoContainer = document.createElement('div');
-      userInfoContainer.id = 'business-chat-user-info';
-      userInfoContainer.style.flex = '1';
-      userInfoContainer.style.padding = '20px';
-      userInfoContainer.style.backgroundColor = '#f9fafb';
-      userInfoContainer.style.overflowY = 'auto';
-      userInfoContainer.style.display = 'flex';
-      userInfoContainer.style.flexDirection = 'column';
-      userInfoContainer.style.justifyContent = 'center';
-      userInfoContainer.style.alignItems = 'center';
-      
-      userInfoContainer.innerHTML = `
-        <div style="max-width: 320px; width: 100%; background-color: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;">
-          <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 16px; text-align: center;">Before we start chatting</h3>
-          <p style="font-size: 14px; color: #4b5563; margin-bottom: 20px; text-align: center;">Please provide your information so we can better assist you.</p>
-          
-          <div style="margin-bottom: 16px;">
-            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px;">Your Name</label>
-            <input 
-              id="business-chat-name" 
-              type="text" 
-              placeholder="Enter your name" 
-              style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; outline: none; transition: border-color 0.2s ease;"
-            >
-          </div>
-          
-          <div style="margin-bottom: 24px;">
-            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px;">Your Email</label>
-            <input 
-              id="business-chat-email" 
-              type="email" 
-              placeholder="Enter your email" 
-              style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; outline: none; transition: border-color 0.2s ease;"
-            >
-          </div>
-          
-          <button 
-            id="business-chat-submit-info" 
-            style="width: 100%; padding: 12px; background-color: ${this.settings?.brand_color || '#3B82F6'}; color: white; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease;"
-          >
-            Start Chatting
-          </button>
-        </div>
-      `;
-      chatWindow.appendChild(userInfoContainer);
-      
-      // Create chat messages container (initially hidden)
+      // Create chat messages container
       const chatMessages = document.createElement('div');
       chatMessages.id = 'business-chat-messages';
       chatMessages.style.flex = '1';
@@ -272,7 +220,7 @@
       chatMessages.style.overflowY = 'auto';
       chatMessages.style.backgroundColor = '#f9fafb';
       chatMessages.style.backgroundImage = 'none';
-      chatMessages.style.display = 'none';
+      chatMessages.style.display = 'block';
       chatWindow.appendChild(chatMessages);
       
       // Add welcome message
@@ -312,13 +260,13 @@
       `;
       chatMessages.appendChild(typingIndicator);
       
-      // Create chat input area (initially hidden)
+      // Create chat input area
       const chatInputArea = document.createElement('div');
       chatInputArea.id = 'business-chat-input-area';
       chatInputArea.style.padding = '16px 20px';
       chatInputArea.style.borderTop = '1px solid #eaeaea';
       chatInputArea.style.backgroundColor = 'white';
-      chatInputArea.style.display = 'none';
+      chatInputArea.style.display = 'block';
       chatInputArea.innerHTML = `
         <div style="display: flex; align-items: center;">
           <input id="business-chat-input" type="text" placeholder="Type your message..." style="flex: 1; padding: 14px 18px; border: 1px solid #e0e0e0; border-radius: 24px; outline: none; font-size: 14px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
@@ -360,48 +308,6 @@
       
       closeButton.addEventListener('mouseout', function() {
         this.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-      });
-      
-      // User info form submission
-      const userInfoForm = document.getElementById('business-chat-submit-info');
-      userInfoForm.addEventListener('click', async () => {
-        const nameInput = document.getElementById('business-chat-name');
-        const emailInput = document.getElementById('business-chat-email');
-        
-        const name = nameInput.value.trim();
-        const email = emailInput.value.trim();
-        
-        if (!name) {
-          nameInput.style.borderColor = '#ef4444';
-          return;
-        }
-        
-        if (!email || !this.validateEmail(email)) {
-          emailInput.style.borderColor = '#ef4444';
-          return;
-        }
-        
-        // Store user info
-        this.userInfo.name = name;
-        this.userInfo.email = email;
-        this.userInfoSubmitted = true;
-        
-        // Show chat interface
-        document.getElementById('business-chat-user-info').style.display = 'none';
-        document.getElementById('business-chat-messages').style.display = 'block';
-        document.getElementById('business-chat-input-area').style.display = 'block';
-      });
-      
-      // Add input field event listeners
-      const nameInput = document.getElementById('business-chat-name');
-      const emailInput = document.getElementById('business-chat-email');
-      
-      nameInput.addEventListener('input', function() {
-        this.style.borderColor = this.value.trim() ? '#d1d5db' : '#ef4444';
-      });
-      
-      emailInput.addEventListener('input', function() {
-        this.style.borderColor = '#d1d5db';
       });
       
       // Chat input event listeners
@@ -706,16 +612,6 @@
           transform: scale(1);
           opacity: 0;
           transition: 0s;
-        }
-        
-        /* User info form styles */
-        #business-chat-name:focus, #business-chat-email:focus {
-          border-color: ${this.settings?.brand_color || '#3B82F6'};
-          box-shadow: 0 0 0 2px ${this.settings?.brand_color || '#3B82F6'}30;
-        }
-        
-        #business-chat-submit-info:hover {
-          background-color: ${this.lightenDarkenColor(this.settings?.brand_color || '#3B82F6', -15)};
         }
       `;
       document.head.appendChild(style);
