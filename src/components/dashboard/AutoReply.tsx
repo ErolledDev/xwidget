@@ -242,13 +242,13 @@ const AutoReply: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
         <div className="flex items-center">
           <MessageSquare className="h-6 w-6 text-indigo-600 mr-2" />
           <h2 className="text-xl font-semibold text-gray-900">Auto Reply Settings</h2>
         </div>
-        <div className="flex space-x-2">
-          <label className="btn-secondary cursor-pointer">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <label className="btn-secondary cursor-pointer flex-grow sm:flex-grow-0">
             <Upload className="h-4 w-4 mr-2" />
             Import Excel
             <input
@@ -260,7 +260,7 @@ const AutoReply: React.FC = () => {
           </label>
           <button
             onClick={handleExportExcel}
-            className="btn-primary"
+            className="btn-primary flex-grow sm:flex-grow-0"
           >
             <Download className="h-4 w-4 mr-2" />
             Export Excel
@@ -269,7 +269,7 @@ const AutoReply: React.FC = () => {
       </div>
 
       {/* Add new auto reply form */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
         <h3 className="text-lg font-medium mb-4 text-gray-900">Add New Auto Reply</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
@@ -309,18 +309,18 @@ const AutoReply: React.FC = () => {
             <label className="form-label">
               Synonyms
             </label>
-            <div className="flex">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
               <input
                 type="text"
                 value={synonymInput}
                 onChange={(e) => setSynonymInput(e.target.value)}
-                className="form-input rounded-r-none"
+                className="form-input sm:rounded-r-none"
                 placeholder="Add synonym"
               />
               <button
                 type="button"
                 onClick={handleAddSynonym}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-r-md"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md sm:rounded-l-none"
               >
                 Add
               </button>
@@ -370,20 +370,20 @@ const AutoReply: React.FC = () => {
       </div>
 
       {/* Test matching section */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
         <h3 className="text-lg font-medium mb-4 text-gray-900">Test Your Auto Replies</h3>
-        <div className="flex mb-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 mb-4">
           <input
             type="text"
             value={testInput}
             onChange={(e) => setTestInput(e.target.value)}
-            className="form-input rounded-r-none"
+            className="form-input sm:rounded-r-none"
             placeholder="Enter a test message"
           />
           <button
             type="button"
             onClick={handleTestMatching}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-r-md"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md sm:rounded-l-none"
           >
             Test
           </button>
@@ -430,15 +430,15 @@ const AutoReply: React.FC = () => {
       </div>
 
       {/* List of auto replies */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
           <h3 className="text-lg font-medium text-gray-900">Auto Replies</h3>
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="pl-9 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
               placeholder="Search replies..."
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -456,7 +456,7 @@ const AutoReply: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="table-container">
+          <div className="table-container overflow-x-auto">
             <table className="table">
               <thead>
                 <tr>

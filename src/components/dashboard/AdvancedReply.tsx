@@ -136,7 +136,7 @@ const AdvancedReply: React.FC = () => {
       </div>
 
       {/* Add new advanced reply form */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
         <h3 className="text-lg font-medium mb-4 text-gray-900">Add New Advanced Reply</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
@@ -223,8 +223,8 @@ const AdvancedReply: React.FC = () => {
               placeholder="Enter response message"
             ></textarea>
           ) : (
-            <div className="flex items-center">
-              <div className="flex-grow">
+            <div className="flex items-center flex-col sm:flex-row gap-2 sm:gap-0">
+              <div className="flex-grow w-full">
                 <input
                   type="url"
                   name="url"
@@ -234,7 +234,7 @@ const AdvancedReply: React.FC = () => {
                   placeholder="https://example.com/page"
                 />
               </div>
-              <div className="ml-2">
+              <div className="sm:ml-2 hidden sm:block">
                 <LinkIcon className="h-5 w-5 text-gray-400" />
               </div>
             </div>
@@ -258,15 +258,15 @@ const AdvancedReply: React.FC = () => {
       </div>
 
       {/* List of advanced replies */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
           <h3 className="text-lg font-medium text-gray-900">Advanced Replies</h3>
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="pl-9 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
               placeholder="Search replies..."
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -284,7 +284,7 @@ const AdvancedReply: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="table-container">
+          <div className="table-container overflow-x-auto">
             <table className="table">
               <thead>
                 <tr>

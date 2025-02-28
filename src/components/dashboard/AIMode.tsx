@@ -156,7 +156,7 @@ const AIMode: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
           <div className="flex items-center">
             <Sparkles className="h-5 w-5 text-indigo-600 mr-2" />
@@ -290,7 +290,7 @@ const AIMode: React.FC = () => {
       </div>
 
       {/* Example AI responses section */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
         <h3 className="text-lg font-medium mb-4 text-gray-900">How AI Mode Works</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

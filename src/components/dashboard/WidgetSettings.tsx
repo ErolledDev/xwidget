@@ -152,7 +152,7 @@ const WidgetSettings: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label className="form-label">
@@ -193,13 +193,13 @@ const WidgetSettings: React.FC = () => {
           <label className="form-label">
             Brand Color
           </label>
-          <div className="flex items-center">
+          <div className="flex flex-wrap items-center gap-3">
             <input
               type="color"
               name="brand_color"
               value={settings.brand_color}
               onChange={handleInputChange}
-              className="h-10 w-10 border border-gray-300 rounded-md shadow-sm cursor-pointer mr-3"
+              className="h-10 w-10 border border-gray-300 rounded-md shadow-sm cursor-pointer"
             />
             <input
               type="text"
@@ -209,7 +209,7 @@ const WidgetSettings: React.FC = () => {
               className="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="#4f46e5"
             />
-            <div className="ml-4 flex space-x-2">
+            <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
               {['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'].map(color => (
                 <button
                   key={color}
@@ -270,7 +270,7 @@ const WidgetSettings: React.FC = () => {
       {/* Preview section */}
       <div className="mt-8">
         <h3 className="text-lg font-medium mb-4 text-gray-900">Widget Preview</h3>
-        <div className="bg-gray-100 p-6 rounded-xl border border-gray-200">
+        <div className="bg-gray-100 p-4 sm:p-6 rounded-xl border border-gray-200">
           <div className="max-w-sm mx-auto">
             <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
               <div className="p-4" style={{ backgroundColor: settings.brand_color || '#4f46e5' }}>

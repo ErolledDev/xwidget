@@ -119,3 +119,25 @@ body {
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }
+
+/* Mobile responsiveness fixes */
+@media (max-width: 640px) {
+  .form-input, 
+  .btn-primary, 
+  .btn-secondary {
+    font-size: 16px; /* Prevent iOS zoom on input focus */
+  }
+  
+  .table-container {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+    border-radius: 0;
+  }
+  
+  .table th,
+  .table td {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}

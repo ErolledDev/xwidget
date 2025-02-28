@@ -38,7 +38,7 @@ const Login: React.FC = () => {
           <p className="text-gray-600 mt-2">Sign in to your account to continue</p>
         </div>
         
-        <div className="bg-white rounded-xl shadow-soft p-8 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-soft p-6 sm:p-8 border border-gray-100">
           {error && (
             <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-md flex items-start">
               <AlertCircle className="h-5 w-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />

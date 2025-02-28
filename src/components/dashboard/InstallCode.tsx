@@ -27,7 +27,7 @@ const InstallCode: React.FC = () => {
         <h2 className="text-xl font-semibold text-gray-900">Install Widget on Your Website</h2>
       </div>
       
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
         <div className="flex items-start mb-4">
           <div className="bg-indigo-100 rounded-full p-2 mr-3 flex-shrink-0">
             <Clipboard className="h-5 w-5 text-indigo-600" />
@@ -62,7 +62,7 @@ const InstallCode: React.FC = () => {
         </div>
       </div>
       
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
         <h3 className="text-lg font-medium mb-6 flex items-center text-gray-900">
           <ExternalLink className="h-5 w-5 mr-2 text-indigo-600" />
           Implementation Guide
