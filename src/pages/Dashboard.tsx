@@ -6,6 +6,7 @@ import AutoReply from '../components/dashboard/AutoReply';
 import AdvancedReply from '../components/dashboard/AdvancedReply';
 import InstallCode from '../components/dashboard/InstallCode';
 import AIMode from '../components/dashboard/AIMode';
+import TutorialGuide from '../components/dashboard/TutorialGuide';
 import { 
   MessageSquare, 
   Settings, 
@@ -16,7 +17,8 @@ import {
   ChevronRight,
   MessageCircle,
   User,
-  Bot
+  Bot,
+  BookOpen
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
@@ -36,6 +38,7 @@ const Dashboard: React.FC = () => {
     { path: '/dashboard/advanced-reply', label: 'Advanced Reply', icon: <MessageCircle className="h-5 w-5" /> },
     { path: '/dashboard/ai-mode', label: 'AI Mode', icon: <Bot className="h-5 w-5" /> },
     { path: '/dashboard/install', label: 'Install Code', icon: <Code className="h-5 w-5" /> },
+    { path: '/dashboard/tutorial', label: 'Tutorial Guide', icon: <BookOpen className="h-5 w-5" /> },
   ];
 
   const isActive = (path: string) => {
@@ -128,6 +131,7 @@ const Dashboard: React.FC = () => {
             <Route path="/advanced-reply" element={<AdvancedReply />} />
             <Route path="/ai-mode" element={<AIMode />} />
             <Route path="/install" element={<InstallCode />} />
+            <Route path="/tutorial" element={<TutorialGuide />} />
           </Routes>
         </div>
       </div>
