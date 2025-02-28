@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BarChart, ClipboardList, Clock, Calendar, MessageCircle, User, ArrowRight, Download, Filter } from 'lucide-react';
 import { getAnalyticsData, ChatSession } from '../../lib/analyticsService';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,13 +20,20 @@ const Analytics: React.FC = () => {
   });
   const [selectedSession, setSelectedSession] = useState<ChatSession | null>(null);
   const [filter, setFilter] = useState('');
+  
+  // Use a ref to track if data has been loaded
+  const dataLoadedRef = useRef(false);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
+      // Skip if data has already been loaded
+      if (dataLoadedRef.current) return;
+      
       try {
         setLoading(true);
         const data = await getAnalyticsData();
         setAnalytics(data);
+        dataLoadedRef.current = true;
       } catch (error) {
         console.error('Error fetching analytics:', error);
       } finally {

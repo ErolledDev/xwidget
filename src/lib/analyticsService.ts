@@ -19,6 +19,14 @@ export interface ChatSession {
   }[];
 }
 
+// Cache for analytics data
+let analyticsCache: {
+  totalSessions: number;
+  totalMessages: number;
+  averageMessagesPerSession: number;
+  sessions: ChatSession[];
+} | null = null;
+
 // Generate a unique ID for sessions
 const generateId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -66,6 +74,9 @@ export const startChatSession = async (): Promise<ChatSession> => {
   const sessions = getChatSessions();
   localStorage.setItem('widget_chat_sessions', JSON.stringify([...sessions, newSession]));
   
+  // Invalidate cache
+  analyticsCache = null;
+  
   return newSession;
 };
 
@@ -104,6 +115,9 @@ export const addMessageToSession = async (
   );
   
   localStorage.setItem('widget_chat_sessions', JSON.stringify(updatedSessions));
+  
+  // Invalidate cache
+  analyticsCache = null;
 };
 
 // Update visitor information
@@ -126,6 +140,9 @@ export const updateVisitorInfo = async (
   );
   
   localStorage.setItem('widget_chat_sessions', JSON.stringify(updatedSessions));
+  
+  // Invalidate cache
+  analyticsCache = null;
 };
 
 // Sync sessions with database if user is authenticated
@@ -177,6 +194,9 @@ export const syncSessionsWithDatabase = async (userId: string): Promise<void> =>
     // Clear localStorage after successful sync
     // localStorage.removeItem('widget_chat_sessions');
     // Note: Commented out to keep local copy as backup
+    
+    // Invalidate cache
+    analyticsCache = null;
   } catch (error) {
     console.error('Error in syncSessionsWithDatabase:', error);
   }
@@ -189,6 +209,11 @@ export const getAnalyticsData = async (): Promise<{
   averageMessagesPerSession: number;
   sessions: ChatSession[];
 }> => {
+  // Return cached data if available
+  if (analyticsCache) {
+    return analyticsCache;
+  }
+  
   const sessions = getChatSessions();
   
   const totalSessions = sessions.length;
@@ -200,10 +225,13 @@ export const getAnalyticsData = async (): Promise<{
     ? totalMessages / totalSessions 
     : 0;
   
-  return {
+  // Cache the result
+  analyticsCache = {
     totalSessions,
     totalMessages,
     averageMessagesPerSession,
     sessions
   };
+  
+  return analyticsCache;
 };

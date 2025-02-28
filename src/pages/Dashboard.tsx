@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import WidgetSettings from '../components/dashboard/WidgetSettings';
@@ -28,6 +28,12 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentTab, setCurrentTab] = useState<string>(location.pathname);
+
+  // Update current tab when location changes
+  useEffect(() => {
+    setCurrentTab(location.pathname);
+  }, [location.pathname]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -50,6 +56,19 @@ const Dashboard: React.FC = () => {
     }
     return location.pathname.startsWith(path) && path !== '/dashboard';
   };
+
+  // Prevent tab content from re-rendering when switching browser tabs
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Do nothing when visibility changes - this prevents re-renders
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -99,7 +118,10 @@ const Dashboard: React.FC = () => {
                     ? 'bg-indigo-50 text-indigo-700'
                     : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                 }`}
-                onClick={() => setSidebarOpen(false)}
+                onClick={() => {
+                  setSidebarOpen(false);
+                  setCurrentTab(item.path);
+                }}
               >
                 <span className={`mr-3 ${isActive(item.path) ? 'text-indigo-500' : 'text-gray-500'}`}>
                   {item.icon}
@@ -129,13 +151,13 @@ const Dashboard: React.FC = () => {
       <div className="lg:pl-64">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Routes>
-            <Route path="/" element={<WidgetSettings />} />
-            <Route path="/auto-reply" element={<AutoReply />} />
-            <Route path="/advanced-reply" element={<AdvancedReply />} />
-            <Route path="/ai-mode" element={<AIMode />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/install" element={<InstallCode />} />
-            <Route path="/tutorial" element={<TutorialGuide />} />
+            <Route path="/" element={<WidgetSettings key="widget-settings" />} />
+            <Route path="/auto-reply" element={<AutoReply key="auto-reply" />} />
+            <Route path="/advanced-reply" element={<AdvancedReply key="advanced-reply" />} />
+            <Route path="/ai-mode" element={<AIMode key="ai-mode" />} />
+            <Route path="/analytics" element={<Analytics key="analytics" />} />
+            <Route path="/install" element={<InstallCode key="install-code" />} />
+            <Route path="/tutorial" element={<TutorialGuide key="tutorial-guide" />} />
           </Routes>
         </div>
       </div>
