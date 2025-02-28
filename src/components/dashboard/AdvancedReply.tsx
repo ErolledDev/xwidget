@@ -3,9 +3,11 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { AdvancedReply as AdvancedReplyType } from '../../types';
 import { Plus, Trash2, MessageCircle, Search, ExternalLink, Link as LinkIcon } from 'lucide-react';
+import { useNotification } from '../../contexts/NotificationContext';
 
 const AdvancedReply: React.FC = () => {
   const { user } = useAuth();
+  const { showNotification } = useNotification();
   const [loading, setLoading] = useState(true);
   const [advancedReplies, setAdvancedReplies] = useState<AdvancedReplyType[]>([]);
   const [newReply, setNewReply] = useState<Partial<AdvancedReplyType>>({
@@ -53,13 +55,21 @@ const AdvancedReply: React.FC = () => {
 
   const handleAddReply = async () => {
     if (!newReply.keyword || !newReply.button_text) {
-      alert('Keyword and button text are required');
+      showNotification({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Keyword and button text are required'
+      });
       return;
     }
 
     // Ensure at least one of response or URL is provided
     if (!newReply.response && !newReply.url) {
-      alert('Either a response message or a URL is required');
+      showNotification({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Either a response message or a URL is required'
+      });
       return;
     }
 
@@ -88,15 +98,27 @@ const AdvancedReply: React.FC = () => {
           match_type: 'contains'
         });
         setShowUrlField(false);
+        
+        // Show notification
+        showNotification({
+          type: 'success',
+          title: 'Advanced Reply Added',
+          message: `Advanced reply for "${data[0].keyword}" has been added successfully.`
+        });
       }
     } catch (error) {
       console.error('Error adding advanced reply:', error);
-      alert('Failed to add advanced reply. Please try again.');
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to add advanced reply. Please try again.'
+      });
     }
   };
 
   const handleDeleteReply = async (id: string) => {
     try {
+      const replyToDelete = advancedReplies.find(reply => reply.id === id);
       const { error } = await supabase
         .from('advanced_replies')
         .delete()
@@ -105,9 +127,20 @@ const AdvancedReply: React.FC = () => {
       if (error) throw error;
       
       setAdvancedReplies(prev => prev.filter(reply => reply.id !== id));
+      
+      // Show notification
+      showNotification({
+        type: 'info',
+        title: 'Advanced Reply Deleted',
+        message: `Advanced reply for "${replyToDelete?.keyword}" has been deleted.`
+      });
     } catch (error) {
       console.error('Error deleting advanced reply:', error);
-      alert('Failed to delete advanced reply. Please try again.');
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to delete advanced reply. Please try again.'
+      });
     }
   };
 

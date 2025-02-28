@@ -5,9 +5,11 @@ import { AutoReply as AutoReplyType } from '../../types';
 import { Upload, Download, Plus, Trash2, Save, AlertCircle, MessageSquare, Search } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import stringSimilarity from 'string-similarity';
+import { useNotification } from '../../contexts/NotificationContext';
 
 const AutoReply: React.FC = () => {
   const { user } = useAuth();
+  const { showNotification } = useNotification();
   const [loading, setLoading] = useState(true);
   const [autoReplies, setAutoReplies] = useState<AutoReplyType[]>([]);
   const [newReply, setNewReply] = useState<Partial<AutoReplyType>>({
@@ -94,15 +96,27 @@ const AutoReply: React.FC = () => {
           match_type: 'exact',
           synonyms: []
         });
+        
+        // Show notification
+        showNotification({
+          type: 'success',
+          title: 'Auto Reply Added',
+          message: `Auto reply for "${data[0].keyword}" has been added successfully.`
+        });
       }
     } catch (error) {
       console.error('Error adding auto reply:', error);
-      alert('Failed to add auto reply. Please try again.');
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to add auto reply. Please try again.'
+      });
     }
   };
 
   const handleDeleteReply = async (id: string) => {
     try {
+      const replyToDelete = autoReplies.find(reply => reply.id === id);
       const { error } = await supabase
         .from('auto_replies')
         .delete()
@@ -111,9 +125,20 @@ const AutoReply: React.FC = () => {
       if (error) throw error;
       
       setAutoReplies(prev => prev.filter(reply => reply.id !== id));
+      
+      // Show notification
+      showNotification({
+        type: 'info',
+        title: 'Auto Reply Deleted',
+        message: `Auto reply for "${replyToDelete?.keyword}" has been deleted.`
+      });
     } catch (error) {
       console.error('Error deleting auto reply:', error);
-      alert('Failed to delete auto reply. Please try again.');
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to delete auto reply. Please try again.'
+      });
     }
   };
 
@@ -133,7 +158,11 @@ const AutoReply: React.FC = () => {
         const jsonData = XLSX.utils.sheet_to_json(worksheet) as { keyword: string; response: string; match_type?: string }[];
         
         if (jsonData.length === 0) {
-          alert('No data found in the Excel file');
+          showNotification({
+            type: 'error',
+            title: 'Import Failed',
+            message: 'No data found in the Excel file'
+          });
           return;
         }
         
@@ -155,11 +184,19 @@ const AutoReply: React.FC = () => {
         
         if (insertedData) {
           setAutoReplies(prev => [...prev, ...insertedData]);
-          alert(`Successfully imported ${insertedData.length} auto replies`);
+          showNotification({
+            type: 'success',
+            title: 'Import Successful',
+            message: `Successfully imported ${insertedData.length} auto replies`
+          });
         }
       } catch (error) {
         console.error('Error importing Excel:', error);
-        alert('Failed to import Excel file. Please check the format and try again.');
+        showNotification({
+          type: 'error',
+          title: 'Import Failed',
+          message: 'Failed to import Excel file. Please check the format and try again.'
+        });
       }
     };
     
@@ -170,7 +207,11 @@ const AutoReply: React.FC = () => {
 
   const handleExportExcel = () => {
     if (autoReplies.length === 0) {
-      alert('No data to export');
+      showNotification({
+        type: 'error',
+        title: 'Export Failed',
+        message: 'No data to export'
+      });
       return;
     }
     
@@ -191,6 +232,12 @@ const AutoReply: React.FC = () => {
     
     // Generate Excel file
     XLSX.writeFile(workbook, 'auto_replies_export.xlsx');
+    
+    showNotification({
+      type: 'success',
+      title: 'Export Successful',
+      message: 'Auto replies exported to Excel file'
+    });
   };
 
   // Function to test matching

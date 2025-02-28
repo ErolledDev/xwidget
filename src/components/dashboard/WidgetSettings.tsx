@@ -3,9 +3,11 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { WidgetSettings as WidgetSettingsType } from '../../types';
 import { Save, RefreshCw, Settings as SettingsIcon, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react';
+import { useNotification } from '../../contexts/NotificationContext';
 
 const WidgetSettings: React.FC = () => {
   const { user } = useAuth();
+  const { showNotification } = useNotification();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -105,12 +107,23 @@ const WidgetSettings: React.FC = () => {
       // Refresh settings after save
       fetchSettings();
       
+      // Show notification
+      showNotification({
+        type: 'success',
+        title: 'Settings Saved',
+        message: 'Your widget settings have been updated successfully.'
+      });
+      
       // Show success message
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       console.error('Error saving widget settings:', error);
-      alert('Failed to save settings. Please try again.');
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to save settings. Please try again.'
+      });
     } finally {
       setSaving(false);
     }

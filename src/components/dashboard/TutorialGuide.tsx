@@ -1,7 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BookOpen, CheckCircle, Info, ArrowRight, HelpCircle, FileText, Video } from 'lucide-react';
 
 const TutorialGuide: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center mb-6">
@@ -28,10 +35,13 @@ const TutorialGuide: React.FC = () => {
             <p className="text-gray-600 mb-3">
               Start by customizing your widget appearance in the Widget Settings tab. Set your business name, representative name, brand color, and welcome message.
             </p>
-            <div className="flex items-center text-indigo-600 text-sm font-medium">
+            <button 
+              onClick={() => handleNavigation('/dashboard')}
+              className="flex items-center text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors"
+            >
               <span>Go to Widget Settings</span>
               <ArrowRight className="h-4 w-4 ml-1" />
-            </div>
+            </button>
           </div>
           
           <div className="border-l-4 border-indigo-500 pl-4 py-1">
@@ -39,10 +49,13 @@ const TutorialGuide: React.FC = () => {
             <p className="text-gray-600 mb-3">
               Create automatic responses for common questions. You can use exact matching, fuzzy matching, regular expressions, or synonyms to trigger these replies.
             </p>
-            <div className="flex items-center text-indigo-600 text-sm font-medium">
+            <button 
+              onClick={() => handleNavigation('/dashboard/auto-reply')}
+              className="flex items-center text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors"
+            >
               <span>Go to Auto Reply</span>
               <ArrowRight className="h-4 w-4 ml-1" />
-            </div>
+            </button>
           </div>
           
           <div className="border-l-4 border-indigo-500 pl-4 py-1">
@@ -50,10 +63,13 @@ const TutorialGuide: React.FC = () => {
             <p className="text-gray-600 mb-3">
               Set up interactive buttons that provide additional information or redirect users to specific pages on your website.
             </p>
-            <div className="flex items-center text-indigo-600 text-sm font-medium">
+            <button 
+              onClick={() => handleNavigation('/dashboard/advanced-reply')}
+              className="flex items-center text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors"
+            >
               <span>Go to Advanced Reply</span>
               <ArrowRight className="h-4 w-4 ml-1" />
-            </div>
+            </button>
           </div>
           
           <div className="border-l-4 border-indigo-500 pl-4 py-1">
@@ -61,10 +77,13 @@ const TutorialGuide: React.FC = () => {
             <p className="text-gray-600 mb-3">
               For more intelligent responses, enable AI Mode and provide your business context. This will help generate relevant responses for questions that don't match your auto-replies.
             </p>
-            <div className="flex items-center text-indigo-600 text-sm font-medium">
+            <button 
+              onClick={() => handleNavigation('/dashboard/ai-mode')}
+              className="flex items-center text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors"
+            >
               <span>Go to AI Mode</span>
               <ArrowRight className="h-4 w-4 ml-1" />
-            </div>
+            </button>
           </div>
           
           <div className="border-l-4 border-indigo-500 pl-4 py-1">
@@ -72,10 +91,13 @@ const TutorialGuide: React.FC = () => {
             <p className="text-gray-600 mb-3">
               Copy the installation code and paste it into your website's HTML before the closing body tag. Your widget will appear immediately.
             </p>
-            <div className="flex items-center text-indigo-600 text-sm font-medium">
+            <button 
+              onClick={() => handleNavigation('/dashboard/install')}
+              className="flex items-center text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors"
+            >
               <span>Go to Install Code</span>
               <ArrowRight className="h-4 w-4 ml-1" />
-            </div>
+            </button>
           </div>
         </div>
       </div>
