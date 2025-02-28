@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -36,6 +37,7 @@ function App() {
                   } 
                 />
               </Routes>
+              <PWAInstallPrompt />
             </div>
           </Router>
         </DataProvider>
