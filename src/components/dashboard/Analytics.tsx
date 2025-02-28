@@ -105,7 +105,7 @@ const Analytics: React.FC = () => {
             <div className="bg-indigo-100 p-4 rounded-full mb-6">
               <ClipboardList className="h-12 w-12 text-indigo-600" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">Comming soon</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">Coming soon</h3>
             <p className="text-gray-600 max-w-lg mx-auto mb-6">
               Once visitors start using your chat widget, you'll see analytics data here.
               All conversations are stored locally in the browser.
