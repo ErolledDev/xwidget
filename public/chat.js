@@ -11,7 +11,6 @@
       this.aiSettings = null;
       this.isTyping = false;
       this.unreadCount = 1;
-      this.analyticsId = null;
       this.userInfo = {
         name: '',
         email: ''
@@ -387,66 +386,10 @@
         this.userInfo.email = email;
         this.userInfoSubmitted = true;
         
-        // Get IP address if possible
-        let ipAddress = '';
-        try {
-          // Use a CORS-friendly IP API
-          const ipResponse = await fetch('https://api.ipify.org?format=json', {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-              'Accept': 'application/json'
-            }
-          });
-          
-          if (ipResponse.ok) {
-            const ipData = await ipResponse.json();
-            ipAddress = ipData.ip;
-          }
-        } catch (error) {
-          console.error('Failed to get IP address:', error);
-          // Continue without IP address
-        }
-        
-        // Save analytics data
-        try {
-          const analyticsResponse = await fetch('https://usyavvmfddorgmitctym.supabase.co/rest/v1/chat_analytics', {
-            method: 'POST',
-            headers: {
-              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzeWF2dm1mZGRvcmdtaXRjdHltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2Njc0MTUsImV4cCI6MjA1NjI0MzQxNX0.Oxz6W0XLIYEmxGFBhh3FRX5kjHH6JIZ7ZKH2_ORlb60',
-              'Content-Type': 'application/json',
-              'Prefer': 'return=representation'
-            },
-            body: JSON.stringify({
-              user_id: this.uid,
-              visitor_name: name,
-              visitor_email: email,
-              ip_address: ipAddress
-            })
-          });
-          
-          if (analyticsResponse.ok) {
-            const analyticsData = await analyticsResponse.json();
-            if (analyticsData && analyticsData.length > 0) {
-              this.analyticsId = analyticsData[0].id;
-              console.log('Analytics saved successfully with ID:', this.analyticsId);
-            }
-          } else {
-            console.error('Failed to save analytics data:', await analyticsResponse.text());
-          }
-        } catch (error) {
-          console.error('Failed to save analytics data:', error);
-        }
-        
         // Show chat interface
         document.getElementById('business-chat-user-info').style.display = 'none';
         document.getElementById('business-chat-messages').style.display = 'block';
         document.getElementById('business-chat-input-area').style.display = 'block';
-        
-        // Save welcome message to chat history
-        if (this.analyticsId) {
-          this.saveChatMessage(this.settings?.business_description || 'How can we help you today?', 'bot');
-        }
       });
       
       // Add input field event listeners
@@ -491,11 +434,6 @@
         this.addMessage(message, 'user');
         chatInput.value = '';
         
-        // Save user message to chat history
-        if (this.analyticsId) {
-          this.saveChatMessage(message, 'user');
-        }
-        
         // Hide any advanced replies
         this.hideAdvancedReplies();
         
@@ -514,11 +452,6 @@
             this.showAdvancedReplies(matchedAdvancedReplies);
             const botResponse = "I found some information that might help:";
             this.addMessage(botResponse, 'bot');
-            
-            // Save bot response to chat history
-            if (this.analyticsId) {
-              this.saveChatMessage(botResponse, 'bot');
-            }
           } else {
             // Otherwise process as regular auto-reply
             this.processAutoReply(message);
@@ -968,11 +901,6 @@
             
             // Add the response as a bot message
             this.addMessage(reply.response, 'bot');
-            
-            // Save bot response to chat history
-            if (this.analyticsId) {
-              this.saveChatMessage(reply.response, 'bot');
-            }
           });
         }
         
@@ -1028,11 +956,6 @@
       
       if (matchedReply) {
         this.addMessage(matchedReply.response, 'bot');
-        
-        // Save bot response to chat history
-        if (this.analyticsId) {
-          this.saveChatMessage(matchedReply.response, 'bot');
-        }
       } else {
         // No auto-reply match found, check if AI mode is enabled
         if (this.aiSettings && this.aiSettings.enabled && this.aiSettings.api_key) {
@@ -1048,31 +971,16 @@
             
             // Add AI response
             this.addMessage(response, 'bot');
-            
-            // Save bot response to chat history
-            if (this.analyticsId) {
-              this.saveChatMessage(response, 'bot');
-            }
           } catch (error) {
             console.error('Error getting AI response:', error);
             this.hideTypingIndicator();
             const defaultResponse = "Thank you for your message. We'll get back to you as soon as possible.";
             this.addMessage(defaultResponse, 'bot');
-            
-            // Save default response to chat history
-            if (this.analyticsId) {
-              this.saveChatMessage(defaultResponse, 'bot');
-            }
           }
         } else {
           // AI mode not enabled, use default response
           const defaultResponse = "Thank you for your message. We'll get back to you as soon as possible.";
           this.addMessage(defaultResponse, 'bot');
-          
-          // Save default response to chat history
-          if (this.analyticsId) {
-            this.saveChatMessage(defaultResponse, 'bot');
-          }
         }
       }
     }
@@ -1125,36 +1033,6 @@
       } catch (error) {
         console.error('Error in AI response generation:', error);
         throw error;
-      }
-    }
-    
-    async saveChatMessage(message, sender) {
-      if (!this.analyticsId) {
-        console.log('No analytics ID available, cannot save chat message');
-        return;
-      }
-      
-      try {
-        const response = await fetch('https://usyavvmfddorgmitctym.supabase.co/rest/v1/chat_messages', {
-          method: 'POST',
-          headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzeWF2dm1mZGRvcmdtaXRjdHltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2Njc0MTUsImV4cCI6MjA1NjI0MzQxNX0.Oxz6W0XLIYEmxGFBhh3FRX5kjHH6JIZ7ZKH2_ORlb60',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            analytics_id: this.analyticsId,
-            message: message,
-            sender: sender
-          })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to save chat message: ${response.status} ${response.statusText}`);
-        }
-        
-        console.log('Chat message saved successfully');
-      } catch (error) {
-        console.error('Failed to save chat message:', error);
       }
     }
     
