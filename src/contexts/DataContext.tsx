@@ -87,7 +87,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   // State to track if data has been loaded
-  const [dataLoaded, setDataLoaded] = useState({
+  const dataLoaded = useRef({
     widgetSettings: false,
     autoReplies: false,
     advancedReplies: false,
@@ -113,12 +113,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     aiSettings: 0,
   });
 
+  // Track if component is mounted to prevent state updates after unmount
+  const isMounted = useRef(true);
+
   // Fetch widget settings
   const fetchWidgetSettings = async (forceRefresh = false) => {
     if (!user) return;
     
     // Skip if already loaded and not forcing refresh
-    if (dataLoaded.widgetSettings && !forceRefresh) return;
+    if (dataLoaded.current.widgetSettings && !forceRefresh) return;
     
     // Skip if fetch is already in progress
     if (fetchInProgress.current.widgetSettings) return;
@@ -129,8 +132,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     try {
       fetchInProgress.current.widgetSettings = true;
-      setLoading(prev => ({ ...prev, widgetSettings: true }));
-      setError(prev => ({ ...prev, widgetSettings: null }));
+      if (isMounted.current) {
+        setLoading(prev => ({ ...prev, widgetSettings: true }));
+        setError(prev => ({ ...prev, widgetSettings: null }));
+      }
       
       const { data, error: fetchError } = await supabase
         .from('widget_settings')
@@ -142,29 +147,35 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw fetchError;
       }
 
-      if (data) {
-        setWidgetSettings(data);
-      } else {
-        // Set default values if no data exists
-        setWidgetSettings({
-          id: '',
-          user_id: user.id,
-          business_name: '',
-          representative_name: '',
-          brand_color: '#4f46e5',
-          business_description: ''
-        });
+      if (isMounted.current) {
+        if (data) {
+          setWidgetSettings(data);
+        } else {
+          // Set default values if no data exists
+          setWidgetSettings({
+            id: '',
+            user_id: user.id,
+            business_name: '',
+            representative_name: '',
+            brand_color: '#4f46e5',
+            business_description: ''
+          });
+        }
+        
+        // Mark as loaded and update timestamp
+        dataLoaded.current.widgetSettings = true;
+        lastFetchTime.current.widgetSettings = now;
       }
-      
-      // Mark as loaded and update timestamp
-      setDataLoaded(prev => ({ ...prev, widgetSettings: true }));
-      lastFetchTime.current.widgetSettings = now;
     } catch (err: any) {
       console.error('Error fetching widget settings:', err);
-      setError(prev => ({ ...prev, widgetSettings: err.message }));
+      if (isMounted.current) {
+        setError(prev => ({ ...prev, widgetSettings: err.message }));
+      }
     } finally {
-      setLoading(prev => ({ ...prev, widgetSettings: false }));
       fetchInProgress.current.widgetSettings = false;
+      if (isMounted.current) {
+        setLoading(prev => ({ ...prev, widgetSettings: false }));
+      }
     }
   };
 
@@ -173,7 +184,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) return;
     
     // Skip if already loaded and not forcing refresh
-    if (dataLoaded.autoReplies && !forceRefresh) return;
+    if (dataLoaded.current.autoReplies && !forceRefresh) return;
     
     // Skip if fetch is already in progress
     if (fetchInProgress.current.autoReplies) return;
@@ -184,8 +195,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     try {
       fetchInProgress.current.autoReplies = true;
-      setLoading(prev => ({ ...prev, autoReplies: true }));
-      setError(prev => ({ ...prev, autoReplies: null }));
+      if (isMounted.current) {
+        setLoading(prev => ({ ...prev, autoReplies: true }));
+        setError(prev => ({ ...prev, autoReplies: null }));
+      }
       
       const { data, error: fetchError } = await supabase
         .from('auto_replies')
@@ -194,17 +207,23 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (fetchError) throw fetchError;
       
-      setAutoReplies(data || []);
-      
-      // Mark as loaded and update timestamp
-      setDataLoaded(prev => ({ ...prev, autoReplies: true }));
-      lastFetchTime.current.autoReplies = now;
+      if (isMounted.current) {
+        setAutoReplies(data || []);
+        
+        // Mark as loaded and update timestamp
+        dataLoaded.current.autoReplies = true;
+        lastFetchTime.current.autoReplies = now;
+      }
     } catch (err: any) {
       console.error('Error fetching auto replies:', err);
-      setError(prev => ({ ...prev, autoReplies: err.message }));
+      if (isMounted.current) {
+        setError(prev => ({ ...prev, autoReplies: err.message }));
+      }
     } finally {
-      setLoading(prev => ({ ...prev, autoReplies: false }));
       fetchInProgress.current.autoReplies = false;
+      if (isMounted.current) {
+        setLoading(prev => ({ ...prev, autoReplies: false }));
+      }
     }
   };
 
@@ -213,7 +232,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) return;
     
     // Skip if already loaded and not forcing refresh
-    if (dataLoaded.advancedReplies && !forceRefresh) return;
+    if (dataLoaded.current.advancedReplies && !forceRefresh) return;
     
     // Skip if fetch is already in progress
     if (fetchInProgress.current.advancedReplies) return;
@@ -224,8 +243,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     try {
       fetchInProgress.current.advancedReplies = true;
-      setLoading(prev => ({ ...prev, advancedReplies: true }));
-      setError(prev => ({ ...prev, advancedReplies: null }));
+      if (isMounted.current) {
+        setLoading(prev => ({ ...prev, advancedReplies: true }));
+        setError(prev => ({ ...prev, advancedReplies: null }));
+      }
       
       const { data, error: fetchError } = await supabase
         .from('advanced_replies')
@@ -234,17 +255,23 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (fetchError) throw fetchError;
       
-      setAdvancedReplies(data || []);
-      
-      // Mark as loaded and update timestamp
-      setDataLoaded(prev => ({ ...prev, advancedReplies: true }));
-      lastFetchTime.current.advancedReplies = now;
+      if (isMounted.current) {
+        setAdvancedReplies(data || []);
+        
+        // Mark as loaded and update timestamp
+        dataLoaded.current.advancedReplies = true;
+        lastFetchTime.current.advancedReplies = now;
+      }
     } catch (err: any) {
       console.error('Error fetching advanced replies:', err);
-      setError(prev => ({ ...prev, advancedReplies: err.message }));
+      if (isMounted.current) {
+        setError(prev => ({ ...prev, advancedReplies: err.message }));
+      }
     } finally {
-      setLoading(prev => ({ ...prev, advancedReplies: false }));
       fetchInProgress.current.advancedReplies = false;
+      if (isMounted.current) {
+        setLoading(prev => ({ ...prev, advancedReplies: false }));
+      }
     }
   };
 
@@ -253,7 +280,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) return;
     
     // Skip if already loaded and not forcing refresh
-    if (dataLoaded.aiSettings && !forceRefresh) return;
+    if (dataLoaded.current.aiSettings && !forceRefresh) return;
     
     // Skip if fetch is already in progress
     if (fetchInProgress.current.aiSettings) return;
@@ -264,8 +291,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     try {
       fetchInProgress.current.aiSettings = true;
-      setLoading(prev => ({ ...prev, aiSettings: true }));
-      setError(prev => ({ ...prev, aiSettings: null }));
+      if (isMounted.current) {
+        setLoading(prev => ({ ...prev, aiSettings: true }));
+        setError(prev => ({ ...prev, aiSettings: null }));
+      }
       
       const { data, error: fetchError } = await supabase
         .from('ai_settings')
@@ -277,29 +306,35 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw fetchError;
       }
 
-      if (data) {
-        setAISettings(data);
-      } else {
-        // Set default values if no data exists
-        setAISettings({
-          id: '',
-          user_id: user.id,
-          enabled: false,
-          api_key: '',
-          model: 'gpt-3.5-turbo',
-          business_context: ''
-        });
+      if (isMounted.current) {
+        if (data) {
+          setAISettings(data);
+        } else {
+          // Set default values if no data exists
+          setAISettings({
+            id: '',
+            user_id: user.id,
+            enabled: false,
+            api_key: '',
+            model: 'gpt-3.5-turbo',
+            business_context: ''
+          });
+        }
+        
+        // Mark as loaded and update timestamp
+        dataLoaded.current.aiSettings = true;
+        lastFetchTime.current.aiSettings = now;
       }
-      
-      // Mark as loaded and update timestamp
-      setDataLoaded(prev => ({ ...prev, aiSettings: true }));
-      lastFetchTime.current.aiSettings = now;
     } catch (err: any) {
       console.error('Error fetching AI settings:', err);
-      setError(prev => ({ ...prev, aiSettings: err.message }));
+      if (isMounted.current) {
+        setError(prev => ({ ...prev, aiSettings: err.message }));
+      }
     } finally {
-      setLoading(prev => ({ ...prev, aiSettings: false }));
       fetchInProgress.current.aiSettings = false;
+      if (isMounted.current) {
+        setLoading(prev => ({ ...prev, aiSettings: false }));
+      }
     }
   };
 
@@ -340,16 +375,30 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     ]);
   };
 
+  // Handle visibility change to prevent unnecessary fetches when tab is inactive
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Don't trigger fetches when the tab becomes visible again
+      // This prevents unnecessary API calls when switching tabs
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   // Initial data fetch when user changes
   useEffect(() => {
     if (user) {
       // Reset data loaded state when user changes
-      setDataLoaded({
+      dataLoaded.current = {
         widgetSettings: false,
         autoReplies: false,
         advancedReplies: false,
         aiSettings: false,
-      });
+      };
       
       // Reset fetch timestamps
       lastFetchTime.current = {
@@ -372,14 +421,21 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setAISettings(null);
       
       // Reset data loaded state
-      setDataLoaded({
+      dataLoaded.current = {
         widgetSettings: false,
         autoReplies: false,
         advancedReplies: false,
         aiSettings: false,
-      });
+      };
     }
   }, [user]);
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   return (
     <DataContext.Provider

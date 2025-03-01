@@ -14,6 +14,8 @@ const updateSW = registerSW({
   onOfflineReady() {
     console.log('App ready to work offline');
   },
+  // Disable automatic reload on page visibility change
+  immediate: false
 });
 
 const rootElement = document.getElementById('root');

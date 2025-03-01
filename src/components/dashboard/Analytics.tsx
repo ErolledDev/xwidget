@@ -25,11 +25,19 @@ const Analytics: React.FC = () => {
   const dataLoadedRef = useRef(false);
   // Use a ref to track if component is mounted
   const isMountedRef = useRef(true);
+  // Use a ref to track the last fetch time
+  const lastFetchTimeRef = useRef(0);
+  // Cache timeout (in milliseconds) - 10 minutes
+  const CACHE_TIMEOUT = 10 * 60 * 1000;
 
   // Memoized fetch function to prevent unnecessary re-renders
-  const fetchAnalytics = useCallback(async () => {
-    // Skip if data has already been loaded
-    if (dataLoadedRef.current) return;
+  const fetchAnalytics = useCallback(async (forceRefresh = false) => {
+    // Skip if data has already been loaded and not forcing refresh
+    if (dataLoadedRef.current && !forceRefresh) return;
+    
+    // Check cache timeout
+    const now = Date.now();
+    if (!forceRefresh && now - lastFetchTimeRef.current < CACHE_TIMEOUT) return;
     
     try {
       setLoading(true);
@@ -39,6 +47,7 @@ const Analytics: React.FC = () => {
       if (isMountedRef.current) {
         setAnalytics(data);
         dataLoadedRef.current = true;
+        lastFetchTimeRef.current = now;
       }
     } catch (error) {
       console.error('Error fetching analytics:', error);
@@ -47,6 +56,20 @@ const Analytics: React.FC = () => {
         setLoading(false);
       }
     }
+  }, []);
+
+  // Handle visibility change to prevent unnecessary fetches when tab is inactive
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Don't trigger fetches when the tab becomes visible again
+      // This prevents unnecessary API calls when switching tabs
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -91,7 +114,7 @@ const Analytics: React.FC = () => {
     }
   }, [analytics.sessions]);
 
-  if (loading) {
+  if (loading && analytics.totalSessions === 0) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>

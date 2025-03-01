@@ -28,8 +28,8 @@ let analyticsCache: {
   lastFetched: number;
 } | null = null;
 
-// Cache timeout (in milliseconds) - 5 minutes
-const CACHE_TIMEOUT = 5 * 60 * 1000;
+// Cache timeout (in milliseconds) - 10 minutes (increased from 5 minutes)
+const CACHE_TIMEOUT = 10 * 60 * 1000;
 
 // Generate a unique ID for sessions
 const generateId = (): string => {
@@ -39,8 +39,20 @@ const generateId = (): string => {
 // Get visitor IP address (this will be limited by browser security)
 const getIpAddress = async (): Promise<string | undefined> => {
   try {
+    // Check if we have a cached IP address
+    const cachedIp = sessionStorage.getItem('widget_chat_ip');
+    if (cachedIp) {
+      return cachedIp;
+    }
+    
     const response = await fetch('https://api.ipify.org?format=json');
     const data = await response.json();
+    
+    // Cache the IP address in sessionStorage
+    if (data.ip) {
+      sessionStorage.setItem('widget_chat_ip', data.ip);
+    }
+    
     return data.ip;
   } catch (error) {
     console.error('Failed to get IP address:', error);
@@ -61,6 +73,16 @@ export const getChatSessions = (): ChatSession[] => {
 
 // Start a new chat session
 export const startChatSession = async (): Promise<ChatSession> => {
+  // Check if we already have a session in sessionStorage
+  const currentSessionId = sessionStorage.getItem('widget_chat_current_session');
+  if (currentSessionId) {
+    const sessions = getChatSessions();
+    const existingSession = sessions.find(s => s.id === currentSessionId);
+    if (existingSession) {
+      return existingSession;
+    }
+  }
+  
   const ipAddress = await getIpAddress();
   
   const newSession: ChatSession = {
@@ -78,6 +100,9 @@ export const startChatSession = async (): Promise<ChatSession> => {
   const sessions = getChatSessions();
   localStorage.setItem('widget_chat_sessions', JSON.stringify([...sessions, newSession]));
   
+  // Save current session ID to sessionStorage
+  sessionStorage.setItem('widget_chat_current_session', newSession.id);
+  
   // Invalidate cache
   analyticsCache = null;
   
@@ -86,12 +111,25 @@ export const startChatSession = async (): Promise<ChatSession> => {
 
 // Get current active session or create a new one
 export const getCurrentSession = async (): Promise<ChatSession> => {
+  // Check if we have a current session ID in sessionStorage
+  const currentSessionId = sessionStorage.getItem('widget_chat_current_session');
+  if (currentSessionId) {
+    const sessions = getChatSessions();
+    const existingSession = sessions.find(s => s.id === currentSessionId);
+    if (existingSession) {
+      return existingSession;
+    }
+  }
+  
   const sessions = getChatSessions();
   const currentSession = sessions[sessions.length - 1];
   
   if (!currentSession) {
     return startChatSession();
   }
+  
+  // Save current session ID to sessionStorage
+  sessionStorage.setItem('widget_chat_current_session', currentSession.id);
   
   return currentSession;
 };
@@ -151,6 +189,18 @@ export const updateVisitorInfo = async (
 
 // Sync sessions with database if user is authenticated
 export const syncSessionsWithDatabase = async (userId: string): Promise<void> => {
+  // Check if we've already synced recently
+  const lastSync = localStorage.getItem('widget_chat_last_sync');
+  if (lastSync) {
+    const lastSyncTime = parseInt(lastSync, 10);
+    const now = Date.now();
+    
+    // If we've synced in the last 30 minutes, skip
+    if (now - lastSyncTime < 30 * 60 * 1000) {
+      return;
+    }
+  }
+  
   try {
     const sessions = getChatSessions();
     
@@ -195,9 +245,8 @@ export const syncSessionsWithDatabase = async (userId: string): Promise<void> =>
       }
     }
     
-    // Clear localStorage after successful sync
-    // localStorage.removeItem('widget_chat_sessions');
-    // Note: Commented out to keep local copy as backup
+    // Update last sync time
+    localStorage.setItem('widget_chat_last_sync', Date.now().toString());
     
     // Invalidate cache
     analyticsCache = null;
