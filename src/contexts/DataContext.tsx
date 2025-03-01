@@ -102,8 +102,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     aiSettings: false,
   });
 
-  // Cache timeout (in milliseconds) - 5 minutes
-  const CACHE_TIMEOUT = 5 * 60 * 1000;
+  // Cache timeout (in milliseconds) - 10 minutes
+  const CACHE_TIMEOUT = 10 * 60 * 1000;
   
   // Last fetch timestamp
   const lastFetchTime = useRef({
@@ -115,6 +115,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Track if component is mounted to prevent state updates after unmount
   const isMounted = useRef(true);
+
+  // Track if the page is visible
+  const isPageVisible = useRef(true);
 
   // Fetch widget settings
   const fetchWidgetSettings = async (forceRefresh = false) => {
@@ -378,8 +381,21 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Handle visibility change to prevent unnecessary fetches when tab is inactive
   useEffect(() => {
     const handleVisibilityChange = () => {
-      // Don't trigger fetches when the tab becomes visible again
-      // This prevents unnecessary API calls when switching tabs
+      isPageVisible.current = document.visibilityState === 'visible';
+      
+      // If page becomes visible and it's been a while since last fetch, refresh data
+      if (isPageVisible.current) {
+        const now = Date.now();
+        const shouldRefreshWidgetSettings = now - lastFetchTime.current.widgetSettings > CACHE_TIMEOUT;
+        const shouldRefreshAutoReplies = now - lastFetchTime.current.autoReplies > CACHE_TIMEOUT;
+        const shouldRefreshAdvancedReplies = now - lastFetchTime.current.advancedReplies > CACHE_TIMEOUT;
+        const shouldRefreshAISettings = now - lastFetchTime.current.aiSettings > CACHE_TIMEOUT;
+        
+        if (shouldRefreshWidgetSettings) fetchWidgetSettings();
+        if (shouldRefreshAutoReplies) fetchAutoReplies();
+        if (shouldRefreshAdvancedReplies) fetchAdvancedReplies();
+        if (shouldRefreshAISettings) fetchAISettings();
+      }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
