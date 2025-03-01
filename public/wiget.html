@@ -4,12 +4,61 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Widget Test Page</title>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #4f46e5;
+      margin-bottom: 1rem;
+    }
+    p {
+      margin-bottom: 1.5rem;
+      color: #374151;
+    }
+    .content {
+      background-color: #f9fafb;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .feature {
+      margin-bottom: 1.5rem;
+      padding-left: 1.5rem;
+      border-left: 3px solid #4f46e5;
+    }
+    .feature h3 {
+      color: #4f46e5;
+      margin-bottom: 0.5rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>Widget Test Page</h1>
-  <p>This page demonstrates the chat widget in action.</p>
+  <h1>Widget Chat Demo Page</h1>
+  <div class="content">
+    <p>This page demonstrates the chat widget in action. The chat bubbles now adapt to the content length instead of being full width.</p>
+    
+    <div class="feature">
+      <h3>Adaptive Bubble Width</h3>
+      <p>Chat bubbles now automatically adjust their width based on the content length, creating a more natural chat experience.</p>
+    </div>
+    
+    <div class="feature">
+      <h3>Test the Widget</h3>
+      <p>Click on the chat button in the bottom right corner to open the widget and try sending messages of different lengths to see how the bubbles adapt.</p>
+    </div>
+    
+    <div class="feature">
+      <h3>Responsive Design</h3>
+      <p>The widget is fully responsive and works well on both desktop and mobile devices.</p>
+    </div>
+  </div>
   
-  <script src="https://widget-chat-app.netlify.app/chat.js"></script>
+  <script src="chat.js"></script>
   <script>
     new BusinessChatPlugin({
       uid: 'YOUR_UID'

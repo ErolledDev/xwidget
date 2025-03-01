@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { useData } from '../../contexts/DataContext';
 import { AutoReply as AutoReplyType } from '../../types';
-import { Upload, Download, Plus, Trash, MessageSquare, Search } from 'lucide-react';
+import { Upload, Download, Plus, Trash2, Save, AlertCircle, MessageSquare, Search } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import stringSimilarity from 'string-similarity';
 import { useNotification } from '../../contexts/NotificationContext';
@@ -11,9 +10,8 @@ import { useNotification } from '../../contexts/NotificationContext';
 const AutoReply: React.FC = () => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const { autoReplies, loading, setAutoReplies } = useData();
-  
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [autoReplies, setAutoReplies] = useState<AutoReplyType[]>([]);
   const [newReply, setNewReply] = useState<Partial<AutoReplyType>>({
     keyword: '',
     response: '',
@@ -24,6 +22,29 @@ const AutoReply: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [testInput, setTestInput] = useState('');
   const [testResults, setTestResults] = useState<{id: string, matched: boolean}[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      fetchAutoReplies();
+    }
+  }, [user]);
+
+  const fetchAutoReplies = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('auto_replies')
+        .select('*')
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+      setAutoReplies(data || []);
+    } catch (error) {
+      console.error('Error fetching auto replies:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -49,16 +70,11 @@ const AutoReply: React.FC = () => {
 
   const handleAddReply = async () => {
     if (!newReply.keyword || !newReply.response) {
-      showNotification({
-        type: 'error',
-        title: 'Validation Error',
-        message: 'Keyword and response are required'
-      });
+      alert('Keyword and response are required');
       return;
     }
 
     try {
-      setSaving(true);
       const { data, error } = await supabase
         .from('auto_replies')
         .insert({
@@ -73,10 +89,7 @@ const AutoReply: React.FC = () => {
       if (error) throw error;
       
       if (data) {
-        // Update local state directly instead of refreshing
-        setAutoReplies(prev => [...prev, ...data]);
-        
-        // Reset form
+        setAutoReplies(prev => [...prev, data[0]]);
         setNewReply({
           keyword: '',
           response: '',
@@ -91,15 +104,13 @@ const AutoReply: React.FC = () => {
           message: `Auto reply for "${data[0].keyword}" has been added successfully.`
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error adding auto reply:', error);
       showNotification({
         type: 'error',
         title: 'Error',
         message: 'Failed to add auto reply. Please try again.'
       });
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -113,7 +124,6 @@ const AutoReply: React.FC = () => {
 
       if (error) throw error;
       
-      // Update local state directly instead of refreshing
       setAutoReplies(prev => prev.filter(reply => reply.id !== id));
       
       // Show notification
@@ -122,7 +132,7 @@ const AutoReply: React.FC = () => {
         title: 'Auto Reply Deleted',
         message: `Auto reply for "${replyToDelete?.keyword}" has been deleted.`
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error deleting auto reply:', error);
       showNotification({
         type: 'error',
@@ -132,7 +142,7 @@ const AutoReply: React.FC = () => {
     }
   };
 
-  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -173,16 +183,14 @@ const AutoReply: React.FC = () => {
         if (error) throw error;
         
         if (insertedData) {
-          // Update local state directly instead of refreshing
           setAutoReplies(prev => [...prev, ...insertedData]);
-          
           showNotification({
             type: 'success',
             title: 'Import Successful',
             message: `Successfully imported ${insertedData.length} auto replies`
           });
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error importing Excel:', error);
         showNotification({
           type: 'error',
@@ -270,7 +278,7 @@ const AutoReply: React.FC = () => {
     reply.response.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading.autoReplies) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -375,7 +383,7 @@ const AutoReply: React.FC = () => {
                       onClick={() => handleRemoveSynonym(index)}
                       className="ml-1 text-gray-500 hover:text-gray-700"
                     >
-                      <Trash className="h-3 w-3" />
+                      <Trash2 className="h-3 w-3" />
                     </button>
                   </div>
                 ))}
@@ -401,23 +409,10 @@ const AutoReply: React.FC = () => {
         <button
           type="button"
           onClick={handleAddReply}
-          disabled={saving}
           className="btn-primary"
         >
-          {saving ? (
-            <span className="flex items-center">
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Adding...
-            </span>
-          ) : (
-            <span className="flex items-center">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Auto Reply
-            </span>
-          )}
+          <Plus className="h-4 w-4 mr-2" />
+          Add Auto Reply
         </button>
       </div>
 
@@ -542,7 +537,7 @@ const AutoReply: React.FC = () => {
                         onClick={() => handleDeleteReply(reply.id)}
                         className="text-red-600 hover:text-red-900 transition-colors"
                       >
-                        <Trash className="h-4 w-4" />
+                        Delete
                       </button>
                     </td>
                   </tr>
@@ -572,26 +567,6 @@ const CheckCircle = ({ className }: { className?: string }) => (
   >
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
     <polyline points="22 4 12 14.01 9 11.01"></polyline>
-  </svg>
-);
-
-// AlertCircle component for test results
-const AlertCircle = ({ className }: { className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="12" y1="8" x2="12" y2="12"></line>
-    <line x1="12" y1="16" x2="12.01" y2="16"></line>
   </svg>
 );
 

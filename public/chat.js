@@ -539,6 +539,9 @@
           font-size: 14px;
           line-height: 1.5;
           box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+          display: inline-block; /* Make content width fit to text */
+          max-width: 100%; /* Ensure it doesn't overflow container */
+          word-wrap: break-word; /* Ensure long words don't overflow */
         }
         
         .business-chat-message-bot .business-chat-message-content {

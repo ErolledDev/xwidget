@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import WidgetSettings from '../components/dashboard/WidgetSettings';
@@ -28,19 +28,13 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [currentTab, setCurrentTab] = useState<string>(location.pathname);
-
-  // Update current tab when location changes
-  useEffect(() => {
-    setCurrentTab(location.pathname);
-  }, [location.pathname]);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
 
-  const navItems = useMemo(() => [
+  const navItems = [
     { path: '/dashboard', label: 'Widget Settings', icon: <Settings className="h-5 w-5" /> },
     { path: '/dashboard/auto-reply', label: 'Auto Reply', icon: <MessageSquare className="h-5 w-5" /> },
     { path: '/dashboard/advanced-reply', label: 'Advanced Reply', icon: <MessageCircle className="h-5 w-5" /> },
@@ -48,7 +42,7 @@ const Dashboard: React.FC = () => {
     { path: '/dashboard/analytics', label: 'Analytics', icon: <BarChart className="h-5 w-5" /> },
     { path: '/dashboard/install', label: 'Install Code', icon: <Code className="h-5 w-5" /> },
     { path: '/dashboard/tutorial', label: 'Tutorial Guide', icon: <BookOpen className="h-5 w-5" /> },
-  ], []);
+  ];
 
   const isActive = (path: string) => {
     if (path === '/dashboard' && location.pathname === '/dashboard') {
@@ -56,19 +50,6 @@ const Dashboard: React.FC = () => {
     }
     return location.pathname.startsWith(path) && path !== '/dashboard';
   };
-
-  // Memoize route components to prevent unnecessary re-renders
-  const routeComponents = useMemo(() => (
-    <Routes>
-      <Route path="/" element={<WidgetSettings key="widget-settings" />} />
-      <Route path="/auto-reply" element={<AutoReply key="auto-reply" />} />
-      <Route path="/advanced-reply" element={<AdvancedReply key="advanced-reply" />} />
-      <Route path="/ai-mode" element={<AIMode key="ai-mode" />} />
-      <Route path="/analytics" element={<Analytics key="analytics" />} />
-      <Route path="/install" element={<InstallCode key="install-code" />} />
-      <Route path="/tutorial" element={<TutorialGuide key="tutorial-guide" />} />
-    </Routes>
-  ), []);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -118,10 +99,7 @@ const Dashboard: React.FC = () => {
                     ? 'bg-indigo-50 text-indigo-700'
                     : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                 }`}
-                onClick={() => {
-                  setSidebarOpen(false);
-                  setCurrentTab(item.path);
-                }}
+                onClick={() => setSidebarOpen(false)}
               >
                 <span className={`mr-3 ${isActive(item.path) ? 'text-indigo-500' : 'text-gray-500'}`}>
                   {item.icon}
@@ -150,7 +128,15 @@ const Dashboard: React.FC = () => {
       {/* Main content */}
       <div className="lg:pl-64">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {routeComponents}
+          <Routes>
+            <Route path="/" element={<WidgetSettings />} />
+            <Route path="/auto-reply" element={<AutoReply />} />
+            <Route path="/advanced-reply" element={<AdvancedReply />} />
+            <Route path="/ai-mode" element={<AIMode />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/install" element={<InstallCode />} />
+            <Route path="/tutorial" element={<TutorialGuide />} />
+          </Routes>
         </div>
       </div>
 

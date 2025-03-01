@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, ClipboardList, Clock, Calendar, MessageCircle, User, ArrowRight, Download, Filter } from 'lucide-react';
 import { getAnalyticsData, ChatSession } from '../../lib/analyticsService';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,85 +20,38 @@ const Analytics: React.FC = () => {
   });
   const [selectedSession, setSelectedSession] = useState<ChatSession | null>(null);
   const [filter, setFilter] = useState('');
-  
-  // Use a ref to track if data has been loaded
-  const dataLoadedRef = useRef(false);
-  // Use a ref to track if component is mounted
-  const isMountedRef = useRef(true);
-  // Use a ref to track the last fetch time
-  const lastFetchTimeRef = useRef(0);
-  // Cache timeout (in milliseconds) - 10 minutes
-  const CACHE_TIMEOUT = 10 * 60 * 1000;
 
-  // Memoized fetch function to prevent unnecessary re-renders
-  const fetchAnalytics = useCallback(async (forceRefresh = false) => {
-    // Skip if data has already been loaded and not forcing refresh
-    if (dataLoadedRef.current && !forceRefresh) return;
-    
-    // Check cache timeout
-    const now = Date.now();
-    if (!forceRefresh && now - lastFetchTimeRef.current < CACHE_TIMEOUT) return;
-    
-    try {
-      setLoading(true);
-      const data = await getAnalyticsData();
-      
-      // Only update state if component is still mounted
-      if (isMountedRef.current) {
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        const data = await getAnalyticsData();
         setAnalytics(data);
-        dataLoadedRef.current = true;
-        lastFetchTimeRef.current = now;
-      }
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-    } finally {
-      if (isMountedRef.current) {
+      } catch (error) {
+        console.error('Error fetching analytics:', error);
+      } finally {
         setLoading(false);
       }
-    }
-  }, []);
-
-  // Handle visibility change to prevent unnecessary fetches when tab is inactive
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      // Don't trigger fetches when the tab becomes visible again
-      // This prevents unnecessary API calls when switching tabs
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
-  useEffect(() => {
     fetchAnalytics();
+  }, [user]);
+
+  const filteredSessions = analytics.sessions.filter(session => {
+    if (!filter) return true;
     
-    // Cleanup function to prevent memory leaks
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, [fetchAnalytics]);
+    const lowerFilter = filter.toLowerCase();
+    const visitorInfo = session.visitorInfo;
+    
+    return (
+      (visitorInfo.name && visitorInfo.name.toLowerCase().includes(lowerFilter)) ||
+      (visitorInfo.email && visitorInfo.email.toLowerCase().includes(lowerFilter)) ||
+      (visitorInfo.ipAddress && visitorInfo.ipAddress.toLowerCase().includes(lowerFilter)) ||
+      session.messages.some(msg => msg.content.toLowerCase().includes(lowerFilter))
+    );
+  });
 
-  // Memoize filtered sessions to prevent recalculation on every render
-  const filteredSessions = useMemo(() => {
-    return analytics.sessions.filter(session => {
-      if (!filter) return true;
-      
-      const lowerFilter = filter.toLowerCase();
-      const visitorInfo = session.visitorInfo;
-      
-      return (
-        (visitorInfo.name && visitorInfo.name.toLowerCase().includes(lowerFilter)) ||
-        (visitorInfo.email && visitorInfo.email.toLowerCase().includes(lowerFilter)) ||
-        (visitorInfo.ipAddress && visitorInfo.ipAddress.toLowerCase().includes(lowerFilter)) ||
-        session.messages.some(msg => msg.content.toLowerCase().includes(lowerFilter))
-      );
-    });
-  }, [analytics.sessions, filter]);
-
-  const handleExportData = useCallback(() => {
+  const handleExportData = () => {
     try {
       const dataStr = JSON.stringify(analytics.sessions, null, 2);
       const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
@@ -112,9 +65,9 @@ const Analytics: React.FC = () => {
     } catch (error) {
       console.error('Error exporting data:', error);
     }
-  }, [analytics.sessions]);
+  };
 
-  if (loading && analytics.totalSessions === 0) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -145,7 +98,7 @@ const Analytics: React.FC = () => {
             <div className="bg-indigo-100 p-4 rounded-full mb-6">
               <ClipboardList className="h-12 w-12 text-indigo-600" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">Coming soon</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">No Chat Data Yet</h3>
             <p className="text-gray-600 max-w-lg mx-auto mb-6">
               Once visitors start using your chat widget, you'll see analytics data here.
               All conversations are stored locally in the browser.
