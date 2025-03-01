@@ -12,9 +12,23 @@
       this.isTyping = false;
       this.unreadCount = 1;
       this.sessionId = null;
+      this.isMobile = window.innerWidth < 768;
       
       // Initialize the chat widget
       this.init();
+      
+      // Listen for window resize events to handle responsive behavior
+      window.addEventListener('resize', this.handleResize.bind(this));
+    }
+    
+    handleResize() {
+      const wasMobile = this.isMobile;
+      this.isMobile = window.innerWidth < 768;
+      
+      // If mobile state changed, update the UI
+      if (wasMobile !== this.isMobile) {
+        this.updateResponsiveStyles();
+      }
     }
     
     async init() {
@@ -495,8 +509,8 @@
         }
       });
       
-      // Add responsive styles for mobile
-      this.addResponsiveStyles();
+      // Apply responsive styles for mobile
+      this.updateResponsiveStyles();
     }
     
     addStyles() {
@@ -745,47 +759,98 @@
           opacity: 0;
           transition: 0s;
         }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 767px) {
+          #business-chat-window {
+            position: fixed !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 100% !important;
+            border-radius: 0 !important;
+            z-index: 99999 !important;
+          }
+          
+          #business-chat-button {
+            width: 54px !important;
+            height: 54px !important;
+            bottom: 20px !important;
+            right: 20px !important;
+          }
+          
+          #business-chat-header {
+            border-radius: 0 !important;
+          }
+          
+          #business-chat-messages {
+            flex: 1 !important;
+          }
+          
+          .business-chat-message {
+            max-width: 90% !important;
+          }
+        }
       `;
       document.head.appendChild(style);
     }
     
-    addResponsiveStyles() {
-      const mediaQuery = window.matchMedia('(max-width: 480px)');
+    updateResponsiveStyles() {
+      const chatWindow = document.getElementById('business-chat-window');
+      const chatButton = document.getElementById('business-chat-button');
       
-      const applyMobileStyles = (matches) => {
-        const chatWindow = document.getElementById('business-chat-window');
-        const chatButton = document.getElementById('business-chat-button');
+      if (!chatWindow || !chatButton) return;
+      
+      if (this.isMobile) {
+        // Mobile styles
+        chatWindow.style.position = 'fixed';
+        chatWindow.style.top = '0';
+        chatWindow.style.right = '0';
+        chatWindow.style.bottom = '0';
+        chatWindow.style.left = '0';
+        chatWindow.style.width = '100%';
+        chatWindow.style.height = '100%';
+        chatWindow.style.maxHeight = '100%';
+        chatWindow.style.borderRadius = '0';
+        chatWindow.style.zIndex = '99999';
         
-        if (matches) {
-          // Mobile styles
-          chatWindow.style.width = '100%';
-          chatWindow.style.right = '0';
-          chatWindow.style.bottom = '0';
-          chatWindow.style.borderRadius = '16px 16px 0 0';
-          chatWindow.style.height = '85vh';
-          
-          chatButton.style.width = '54px';
-          chatButton.style.height = '54px';
-        } else {
-          // Desktop styles
-          chatWindow.style.width = '380px';
-          chatWindow.style.right = '0';
-          chatWindow.style.bottom = '80px';
-          chatWindow.style.borderRadius = '16px';
-          chatWindow.style.height = '580px';
-          
-          chatButton.style.width = '60px';
-          chatButton.style.height = '60px';
+        // Update header border radius
+        const chatHeader = chatWindow.querySelector('div');
+        if (chatHeader) {
+          chatHeader.style.borderTopLeftRadius = '0';
+          chatHeader.style.borderTopRightRadius = '0';
         }
-      };
-      
-      // Apply styles initially
-      applyMobileStyles(mediaQuery.matches);
-      
-      // Add listener for screen size changes
-      mediaQuery.addEventListener('change', (e) => {
-        applyMobileStyles(e.matches);
-      });
+        
+        // Adjust button size
+        chatButton.style.width = '54px';
+        chatButton.style.height = '54px';
+      } else {
+        // Desktop styles
+        chatWindow.style.position = 'absolute';
+        chatWindow.style.top = 'auto';
+        chatWindow.style.right = '0';
+        chatWindow.style.bottom = '80px';
+        chatWindow.style.left = 'auto';
+        chatWindow.style.width = '380px';
+        chatWindow.style.height = '580px';
+        chatWindow.style.maxHeight = 'calc(100vh - 100px)';
+        chatWindow.style.borderRadius = '16px';
+        chatWindow.style.zIndex = '9999';
+        
+        // Update header border radius
+        const chatHeader = chatWindow.querySelector('div');
+        if (chatHeader) {
+          chatHeader.style.borderTopLeftRadius = '16px';
+          chatHeader.style.borderTopRightRadius = '16px';
+        }
+        
+        // Adjust button size
+        chatButton.style.width = '60px';
+        chatButton.style.height = '60px';
+      }
     }
     
     addMessage(text, sender) {
@@ -1030,31 +1095,29 @@
     
     async getAIResponse(userMessage) {
       try {
+        // Create a system prompt based on business context
+        const systemPrompt = `You are a helpful sales representative for ${this.settings?.business_name || 'our business'}. 
+        Your name is ${this.settings?.representative_name || 'Support Agent'}.
+        Here is the business information you should use to help customers:
+        ${this.aiSettings?.business_context || 'No additional business information provided.'}
+        
+        CRITICAL RULES:
+        - Keep responses under 150 characters
+        - Be helpful and friendly
+        - Use natural, conversational language
+        - Provide relevant information from the business info
+        - Stay professional and on-topic
+        - Avoid excessive emojis or informal language`;
+        
         // This is a simplified example - in a real implementation, you would call your AI API here
         // For now, we'll simulate an AI call with a delay
         
-        // Get the business context from settings
-        const businessContext = this.aiSettings.business_context || '';
-        const businessName = this.settings?.business_name || '';
-        
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Generate a response based on the user message and business context
-        let response = '';
-        
-        if (userMessage.toLowerCase().includes('price') || userMessage.toLowerCase().includes('cost')) {
-          response = `Our pricing starts at $29/month for the basic plan. Let me know if you'd like more details about what's included.`;
-        } else if (userMessage.toLowerCase().includes('hours') || userMessage. toLowerCase().includes('open')) {
-          response = `We're open Monday-Friday, 9am to 5pm. Is there a specific day you're planning to visit?`;
-        } else if (userMessage.toLowerCase().includes('location') || userMessage.toLowerCase().includes('address')) {
-          response = `We're located at 123 Main Street. You can find directions on our contact page.`;
-        } else if (userMessage.toLowerCase().includes('shipping') || userMessage.toLowerCase().includes('delivery')) {
-          response = `We offer free shipping on orders over $50. Standard delivery takes 3-5 business days.`;
-        } else if (userMessage.toLowerCase().includes('return') || userMessage.toLowerCase().includes('refund')) {
-          response = `You can return any item within 30 days for a full refund. Just keep the original packaging.`;
-        } else {
+  
           // Use the business context to generate a relevant response
+          const businessContext = this.aiSettings?.business_context || '';
+          
           if (businessContext) {
             // Extract key information from the business context
             const contextWords = businessContext.split(' ');
@@ -1070,6 +1133,11 @@
           } else {
             response = `Thanks for your message. How can I help you today?`;
           }
+        }
+        
+        // Ensure response is under 150 characters
+        if (response.length > 150) {
+          response = response.substring(0, 147) + '...';
         }
         
         return response;
