@@ -333,7 +333,8 @@
       chatMessages.style.overflowY = 'auto';
       chatMessages.style.backgroundColor = '#f9fafb';
       chatMessages.style.backgroundImage = 'none';
-      chatMessages.style.display = 'block';
+      chatMessages.style.display = 'flex';
+      chatMessages.style.flexDirection = 'column';
       chatWindow.appendChild(chatMessages);
       
       // Add welcome message
@@ -521,16 +522,16 @@
           margin-bottom: 16px;
           max-width: 85%;
           animation: business-chat-fade-in 0.25s ease;
+          display: flex;
+          flex-direction: column;
         }
         
         .business-chat-message-bot {
           align-self: flex-start;
-          margin-right: auto;
         }
         
         .business-chat-message-user {
           align-self: flex-end;
-          margin-left: auto;
         }
         
         .business-chat-message-content {
@@ -561,6 +562,12 @@
           color: #9ca3af;
           margin-top: 4px;
           padding-left: 4px;
+        }
+        
+        .business-chat-message-user .business-chat-message-time {
+          text-align: right;
+          padding-right: 4px;
+          padding-left: 0;
         }
         
         @keyframes business-chat-fade-in {
@@ -1038,7 +1045,7 @@
         
         if (userMessage.toLowerCase().includes('price') || userMessage.toLowerCase().includes('cost')) {
           response = `Our pricing starts at $29/month for the basic plan. Let me know if you'd like more details about what's included.`;
-        } else if (userMessage.toLowerCase().includes('hours') || userMessage.toLowerCase().includes('open')) {
+        } else if (userMessage.toLowerCase().includes('hours') || userMessage. toLowerCase().includes('open')) {
           response = `We're open Monday-Friday, 9am to 5pm. Is there a specific day you're planning to visit?`;
         } else if (userMessage.toLowerCase().includes('location') || userMessage.toLowerCase().includes('address')) {
           response = `We're located at 123 Main Street. You can find directions on our contact page.`;
