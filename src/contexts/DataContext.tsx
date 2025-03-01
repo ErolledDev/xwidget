@@ -102,22 +102,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     aiSettings: false,
   });
 
-  // Cache timeout (in milliseconds) - 10 minutes
-  const CACHE_TIMEOUT = 10 * 60 * 1000;
-  
-  // Last fetch timestamp
-  const lastFetchTime = useRef({
-    widgetSettings: 0,
-    autoReplies: 0,
-    advancedReplies: 0,
-    aiSettings: 0,
-  });
-
   // Track if component is mounted to prevent state updates after unmount
   const isMounted = useRef(true);
-
-  // Track if the page is visible
-  const isPageVisible = useRef(true);
 
   // Fetch widget settings
   const fetchWidgetSettings = async (forceRefresh = false) => {
@@ -128,10 +114,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     // Skip if fetch is already in progress
     if (fetchInProgress.current.widgetSettings) return;
-    
-    // Check cache timeout
-    const now = Date.now();
-    if (!forceRefresh && now - lastFetchTime.current.widgetSettings < CACHE_TIMEOUT) return;
     
     try {
       fetchInProgress.current.widgetSettings = true;
@@ -165,9 +147,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           });
         }
         
-        // Mark as loaded and update timestamp
+        // Mark as loaded
         dataLoaded.current.widgetSettings = true;
-        lastFetchTime.current.widgetSettings = now;
       }
     } catch (err: any) {
       console.error('Error fetching widget settings:', err);
@@ -192,10 +173,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Skip if fetch is already in progress
     if (fetchInProgress.current.autoReplies) return;
     
-    // Check cache timeout
-    const now = Date.now();
-    if (!forceRefresh && now - lastFetchTime.current.autoReplies < CACHE_TIMEOUT) return;
-    
     try {
       fetchInProgress.current.autoReplies = true;
       if (isMounted.current) {
@@ -213,9 +190,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (isMounted.current) {
         setAutoReplies(data || []);
         
-        // Mark as loaded and update timestamp
+        // Mark as loaded
         dataLoaded.current.autoReplies = true;
-        lastFetchTime.current.autoReplies = now;
       }
     } catch (err: any) {
       console.error('Error fetching auto replies:', err);
@@ -240,10 +216,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Skip if fetch is already in progress
     if (fetchInProgress.current.advancedReplies) return;
     
-    // Check cache timeout
-    const now = Date.now();
-    if (!forceRefresh && now - lastFetchTime.current.advancedReplies < CACHE_TIMEOUT) return;
-    
     try {
       fetchInProgress.current.advancedReplies = true;
       if (isMounted.current) {
@@ -261,9 +233,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (isMounted.current) {
         setAdvancedReplies(data || []);
         
-        // Mark as loaded and update timestamp
+        // Mark as loaded
         dataLoaded.current.advancedReplies = true;
-        lastFetchTime.current.advancedReplies = now;
       }
     } catch (err: any) {
       console.error('Error fetching advanced replies:', err);
@@ -287,10 +258,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     // Skip if fetch is already in progress
     if (fetchInProgress.current.aiSettings) return;
-    
-    // Check cache timeout
-    const now = Date.now();
-    if (!forceRefresh && now - lastFetchTime.current.aiSettings < CACHE_TIMEOUT) return;
     
     try {
       fetchInProgress.current.aiSettings = true;
@@ -324,9 +291,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           });
         }
         
-        // Mark as loaded and update timestamp
+        // Mark as loaded
         dataLoaded.current.aiSettings = true;
-        lastFetchTime.current.aiSettings = now;
       }
     } catch (err: any) {
       console.error('Error fetching AI settings:', err);
@@ -378,33 +344,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     ]);
   };
 
-  // Handle visibility change to prevent unnecessary fetches when tab is inactive
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      isPageVisible.current = document.visibilityState === 'visible';
-      
-      // If page becomes visible and it's been a while since last fetch, refresh data
-      if (isPageVisible.current) {
-        const now = Date.now();
-        const shouldRefreshWidgetSettings = now - lastFetchTime.current.widgetSettings > CACHE_TIMEOUT;
-        const shouldRefreshAutoReplies = now - lastFetchTime.current.autoReplies > CACHE_TIMEOUT;
-        const shouldRefreshAdvancedReplies = now - lastFetchTime.current.advancedReplies > CACHE_TIMEOUT;
-        const shouldRefreshAISettings = now - lastFetchTime.current.aiSettings > CACHE_TIMEOUT;
-        
-        if (shouldRefreshWidgetSettings) fetchWidgetSettings();
-        if (shouldRefreshAutoReplies) fetchAutoReplies();
-        if (shouldRefreshAdvancedReplies) fetchAdvancedReplies();
-        if (shouldRefreshAISettings) fetchAISettings();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
   // Initial data fetch when user changes
   useEffect(() => {
     if (user) {
@@ -414,14 +353,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         autoReplies: false,
         advancedReplies: false,
         aiSettings: false,
-      };
-      
-      // Reset fetch timestamps
-      lastFetchTime.current = {
-        widgetSettings: 0,
-        autoReplies: 0,
-        advancedReplies: 0,
-        aiSettings: 0,
       };
       
       // Fetch all data

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useRef } from 'react';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 type NotificationType = 'success' | 'error' | 'info' | 'warning';
@@ -24,9 +24,28 @@ export const useNotification = () => useContext(NotificationContext);
 
 export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const notificationCache = useRef<Map<string, number>>(new Map());
 
   const showNotification = useCallback((notification: Omit<Notification, 'id'>) => {
+    // Create a cache key from the notification content
+    const cacheKey = `${notification.type}-${notification.title}-${notification.message}`;
+    const now = Date.now();
+    
+    // Check if a similar notification was shown recently (within 3 seconds)
+    if (notificationCache.current.has(cacheKey)) {
+      const lastShown = notificationCache.current.get(cacheKey) || 0;
+      if (now - lastShown < 3000) {
+        // Skip showing duplicate notification
+        return;
+      }
+    }
+    
+    // Update cache with current timestamp
+    notificationCache.current.set(cacheKey, now);
+    
+    // Generate unique ID
     const id = Math.random().toString(36).substring(2, 9);
+    
     setNotifications(prev => [...prev, { ...notification, id }]);
     
     // Auto-dismiss after 5 seconds

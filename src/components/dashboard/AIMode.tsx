@@ -4,11 +4,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { AISettings } from '../../types';
 import { Save, RefreshCw, Bot, CheckCircle, AlertCircle, ToggleLeft, ToggleRight, Key, Info, Sparkles } from 'lucide-react';
 import { useNotification } from '../../contexts/NotificationContext';
+import { useData } from '../../contexts/DataContext';
 
 const AIMode: React.FC = () => {
   const { user } = useAuth();
+  const { aiSettings, loading, refreshAISettings } = useData();
   const { showNotification } = useNotification();
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [settings, setSettings] = useState<AISettings>({
@@ -21,34 +22,10 @@ const AIMode: React.FC = () => {
   });
 
   useEffect(() => {
-    if (user) {
-      fetchSettings();
+    if (aiSettings) {
+      setSettings(aiSettings);
     }
-  }, [user]);
-
-  const fetchSettings = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('ai_settings')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 is the error code for "no rows returned"
-        throw error;
-      }
-
-      if (data) {
-        setSettings(data);
-      }
-    } catch (error) {
-      console.error('Error fetching AI settings:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [aiSettings]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -109,7 +86,7 @@ const AIMode: React.FC = () => {
       if (saveError) throw saveError;
       
       // Refresh settings after save
-      fetchSettings();
+      await refreshAISettings();
       
       // Show success notification
       showNotification({
@@ -133,7 +110,7 @@ const AIMode: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (loading.aiSettings) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -150,7 +127,7 @@ const AIMode: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900">AI Mode Settings</h2>
         </div>
         <button
-          onClick={fetchSettings}
+          onClick={() => refreshAISettings()}
           className="text-gray-600 hover:text-gray-900 flex items-center transition-colors"
           title="Refresh settings"
         >

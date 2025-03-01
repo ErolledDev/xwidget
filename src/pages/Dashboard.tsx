@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { DataProvider } from '../contexts/DataContext';
@@ -29,6 +29,12 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentPath, setCurrentPath] = useState(location.pathname);
+
+  // Update current path when location changes
+  useEffect(() => {
+    setCurrentPath(location.pathname);
+  }, [location.pathname]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -46,10 +52,10 @@ const Dashboard: React.FC = () => {
   ];
 
   const isActive = (path: string) => {
-    if (path === '/dashboard' && location.pathname === '/dashboard') {
+    if (path === '/dashboard' && currentPath === '/dashboard') {
       return true;
     }
-    return location.pathname.startsWith(path) && path !== '/dashboard';
+    return currentPath.startsWith(path) && path !== '/dashboard';
   };
 
   return (
