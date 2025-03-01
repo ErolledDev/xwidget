@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import WidgetSettings from '../components/dashboard/WidgetSettings';
@@ -40,7 +40,7 @@ const Dashboard: React.FC = () => {
     navigate('/');
   };
 
-  const navItems = [
+  const navItems = useMemo(() => [
     { path: '/dashboard', label: 'Widget Settings', icon: <Settings className="h-5 w-5" /> },
     { path: '/dashboard/auto-reply', label: 'Auto Reply', icon: <MessageSquare className="h-5 w-5" /> },
     { path: '/dashboard/advanced-reply', label: 'Advanced Reply', icon: <MessageCircle className="h-5 w-5" /> },
@@ -48,7 +48,7 @@ const Dashboard: React.FC = () => {
     { path: '/dashboard/analytics', label: 'Analytics', icon: <BarChart className="h-5 w-5" /> },
     { path: '/dashboard/install', label: 'Install Code', icon: <Code className="h-5 w-5" /> },
     { path: '/dashboard/tutorial', label: 'Tutorial Guide', icon: <BookOpen className="h-5 w-5" /> },
-  ];
+  ], []);
 
   const isActive = (path: string) => {
     if (path === '/dashboard' && location.pathname === '/dashboard') {
@@ -57,18 +57,18 @@ const Dashboard: React.FC = () => {
     return location.pathname.startsWith(path) && path !== '/dashboard';
   };
 
-  // Prevent tab content from re-rendering when switching browser tabs
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      // Do nothing when visibility changes - this prevents re-renders
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
+  // Memoize route components to prevent unnecessary re-renders
+  const routeComponents = useMemo(() => (
+    <Routes>
+      <Route path="/" element={<WidgetSettings key="widget-settings" />} />
+      <Route path="/auto-reply" element={<AutoReply key="auto-reply" />} />
+      <Route path="/advanced-reply" element={<AdvancedReply key="advanced-reply" />} />
+      <Route path="/ai-mode" element={<AIMode key="ai-mode" />} />
+      <Route path="/analytics" element={<Analytics key="analytics" />} />
+      <Route path="/install" element={<InstallCode key="install-code" />} />
+      <Route path="/tutorial" element={<TutorialGuide key="tutorial-guide" />} />
+    </Routes>
+  ), []);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -150,15 +150,7 @@ const Dashboard: React.FC = () => {
       {/* Main content */}
       <div className="lg:pl-64">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Routes>
-            <Route path="/" element={<WidgetSettings key="widget-settings" />} />
-            <Route path="/auto-reply" element={<AutoReply key="auto-reply" />} />
-            <Route path="/advanced-reply" element={<AdvancedReply key="advanced-reply" />} />
-            <Route path="/ai-mode" element={<AIMode key="ai-mode" />} />
-            <Route path="/analytics" element={<Analytics key="analytics" />} />
-            <Route path="/install" element={<InstallCode key="install-code" />} />
-            <Route path="/tutorial" element={<TutorialGuide key="tutorial-guide" />} />
-          </Routes>
+          {routeComponents}
         </div>
       </div>
 

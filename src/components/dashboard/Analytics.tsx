@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { BarChart, ClipboardList, Clock, Calendar, MessageCircle, User, ArrowRight, Download, Filter } from 'lucide-react';
 import { getAnalyticsData, ChatSession } from '../../lib/analyticsService';
 import { useAuth } from '../../contexts/AuthContext';
@@ -23,42 +23,59 @@ const Analytics: React.FC = () => {
   
   // Use a ref to track if data has been loaded
   const dataLoadedRef = useRef(false);
+  // Use a ref to track if component is mounted
+  const isMountedRef = useRef(true);
 
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      // Skip if data has already been loaded
-      if (dataLoadedRef.current) return;
+  // Memoized fetch function to prevent unnecessary re-renders
+  const fetchAnalytics = useCallback(async () => {
+    // Skip if data has already been loaded
+    if (dataLoadedRef.current) return;
+    
+    try {
+      setLoading(true);
+      const data = await getAnalyticsData();
       
-      try {
-        setLoading(true);
-        const data = await getAnalyticsData();
+      // Only update state if component is still mounted
+      if (isMountedRef.current) {
         setAnalytics(data);
         dataLoadedRef.current = true;
-      } catch (error) {
-        console.error('Error fetching analytics:', error);
-      } finally {
+      }
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    } finally {
+      if (isMountedRef.current) {
         setLoading(false);
       }
-    };
+    }
+  }, []);
 
+  useEffect(() => {
     fetchAnalytics();
-  }, [user]);
-
-  const filteredSessions = analytics.sessions.filter(session => {
-    if (!filter) return true;
     
-    const lowerFilter = filter.toLowerCase();
-    const visitorInfo = session.visitorInfo;
-    
-    return (
-      (visitorInfo.name && visitorInfo.name.toLowerCase().includes(lowerFilter)) ||
-      (visitorInfo.email && visitorInfo.email.toLowerCase().includes(lowerFilter)) ||
-      (visitorInfo.ipAddress && visitorInfo.ipAddress.toLowerCase().includes(lowerFilter)) ||
-      session.messages.some(msg => msg.content.toLowerCase().includes(lowerFilter))
-    );
-  });
+    // Cleanup function to prevent memory leaks
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [fetchAnalytics]);
 
-  const handleExportData = () => {
+  // Memoize filtered sessions to prevent recalculation on every render
+  const filteredSessions = useMemo(() => {
+    return analytics.sessions.filter(session => {
+      if (!filter) return true;
+      
+      const lowerFilter = filter.toLowerCase();
+      const visitorInfo = session.visitorInfo;
+      
+      return (
+        (visitorInfo.name && visitorInfo.name.toLowerCase().includes(lowerFilter)) ||
+        (visitorInfo.email && visitorInfo.email.toLowerCase().includes(lowerFilter)) ||
+        (visitorInfo.ipAddress && visitorInfo.ipAddress.toLowerCase().includes(lowerFilter)) ||
+        session.messages.some(msg => msg.content.toLowerCase().includes(lowerFilter))
+      );
+    });
+  }, [analytics.sessions, filter]);
+
+  const handleExportData = useCallback(() => {
     try {
       const dataStr = JSON.stringify(analytics.sessions, null, 2);
       const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
@@ -72,7 +89,7 @@ const Analytics: React.FC = () => {
     } catch (error) {
       console.error('Error exporting data:', error);
     }
-  };
+  }, [analytics.sessions]);
 
   if (loading) {
     return (

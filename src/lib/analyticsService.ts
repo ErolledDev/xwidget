@@ -25,7 +25,11 @@ let analyticsCache: {
   totalMessages: number;
   averageMessagesPerSession: number;
   sessions: ChatSession[];
+  lastFetched: number;
 } | null = null;
+
+// Cache timeout (in milliseconds) - 5 minutes
+const CACHE_TIMEOUT = 5 * 60 * 1000;
 
 // Generate a unique ID for sessions
 const generateId = (): string => {
@@ -209,9 +213,15 @@ export const getAnalyticsData = async (): Promise<{
   averageMessagesPerSession: number;
   sessions: ChatSession[];
 }> => {
-  // Return cached data if available
-  if (analyticsCache) {
-    return analyticsCache;
+  // Return cached data if available and not expired
+  const now = Date.now();
+  if (analyticsCache && (now - analyticsCache.lastFetched < CACHE_TIMEOUT)) {
+    return {
+      totalSessions: analyticsCache.totalSessions,
+      totalMessages: analyticsCache.totalMessages,
+      averageMessagesPerSession: analyticsCache.averageMessagesPerSession,
+      sessions: analyticsCache.sessions
+    };
   }
   
   const sessions = getChatSessions();
@@ -225,13 +235,19 @@ export const getAnalyticsData = async (): Promise<{
     ? totalMessages / totalSessions 
     : 0;
   
-  // Cache the result
+  // Cache the result with timestamp
   analyticsCache = {
+    totalSessions,
+    totalMessages,
+    averageMessagesPerSession,
+    sessions,
+    lastFetched: now
+  };
+  
+  return {
     totalSessions,
     totalMessages,
     averageMessagesPerSession,
     sessions
   };
-  
-  return analyticsCache;
 };
